@@ -1,0 +1,30 @@
+{
+    "name" : "quiqqer/rest",
+    "type" : "quiqqer-library",
+    "description" : "QUIQQER REST API. Extend the QUIQQER System with a REST Management",
+
+    "version" : "0.0.1",
+    "license" : "GPL-3.0+",
+
+    "authors" : [{
+        "name": "Henning Leutz",
+        "email": "leutz@pcsg.de",
+        "homepage": "http://www.pcsg.de",
+        "role": "Developer"
+    }],
+
+    "support" : {
+        "email" : "support@pcsg.de"
+    },
+
+    "require": {
+        "quiqqer/quiqqer" : "1.*",
+        "slim/slim"       : "2.*"
+    },
+
+    "autoload": {
+        "psr-0" : {
+            "QUI\\Api" : "/"
+        }
+    }
+}
