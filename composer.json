@@ -18,7 +18,7 @@
     },
 
     "require": {
-        "quiqqer/quiqqer" : "dev-master",
+        "quiqqer/quiqqer" : "*",
         "slim/slim"       : "2.*"
     },
 
