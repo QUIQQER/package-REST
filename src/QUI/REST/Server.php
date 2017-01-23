@@ -6,10 +6,9 @@
 
 namespace QUI\REST;
 
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as RequestInterface;
+use Psr\Http\Message\ResponseInterface as ResponseInterface;
 
-use Psr7Middlewares\Middleware;
 use Psr7Middlewares\Middleware\BasePath;
 
 use QUI;
@@ -70,9 +69,10 @@ class Server
     public function run()
     {
         // Hello World
-        $this->Slim->get('/hello/{name}', function (Request $Request, Response $Response, $args) {
+        $this->Slim->get('/hello/{name}', function (RequestInterface $Request, ResponseInterface $Response, $args) {
             return $Response->write("Hello " . $args['name']);
         });
+
 
         // register plugins
         $this->Slim->add(
