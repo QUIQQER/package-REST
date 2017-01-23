@@ -4,7 +4,7 @@
  * This file contains \QUI\Api\REST
  */
 
-namespace \QUI\Api;
+namespace QUI\Api;
 
 /**
  * The Rest Manager
@@ -12,7 +12,6 @@ namespace \QUI\Api;
  * @author www.pcsg.de (Henning Leutz)
  * @package com.pcsg.qui.api
  */
-
 class REST
 {
     /**
@@ -20,11 +19,9 @@ class REST
      *
      * @param String $url
      */
-    static function run($url)
+    public static function run($url)
     {
         echo $url;
-
-
         exit;
 
         $app = new \Slim\Slim();
