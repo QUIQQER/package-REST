@@ -68,6 +68,26 @@ class Server
      */
     public function run()
     {
+        $this->Slim->get('/', function (RequestInterface $Request, ResponseInterface $Response, $args) {
+            return $Response->write(
+                '<pre>
+         _______          _________ _______  _______  _______  _______
+        (  ___  )|\     /|\__   __/(  ___  )(  ___  )(  ____ \(  ____ )
+        | (   ) || )   ( |   ) (   | (   ) || (   ) || (    \/| (    )|
+        | |   | || |   | |   | |   | |   | || |   | || (__    | (____)|
+        | |   | || |   | |   | |   | |   | || |   | ||  __)   |     __)
+        | | /\| || |   | |   | |   | | /\| || | /\| || (      | (\ (
+        | (_\ \ || (___) |___) (___| (_\ \ || (_\ \ || (____/\| ) \ \__
+        (____\/_)(_______)\_______/(____\/_)(____\/_)(_______/|/   \__/
+
+
+            Welcome to QUIQQER REST API.
+                
+                </pre>'
+            );
+        });
+
+
         // Hello World
         $this->Slim->get('/hello/{name}', function (RequestInterface $Request, ResponseInterface $Response, $args) {
             return $Response->write("Hello " . $args['name']);
