@@ -4,26 +4,22 @@
  * This file contains \QUI\Api\REST
  */
 
-namespace QUI\Api;
+namespace QUI\REST;
 
 /**
- * The Rest Manager
+ * The Rest Server
  *
  * @author www.pcsg.de (Henning Leutz)
- * @package com.pcsg.qui.api
  */
-class REST
+class Server
 {
     /**
      * Execute the REST Manager
      *
      * @param String $url
      */
-    public static function run($url)
+    public static function onRequest($url)
     {
-        echo $url;
-        exit;
 
-        $app = new \Slim\Slim();
     }
 }

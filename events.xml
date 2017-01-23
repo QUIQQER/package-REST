@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <events>
-
-    <event on="QUI::request" exec="QUI\Api\REST::run" />
-
+    <event on="onRequest" fire="\QUI\REST\EventHandler::onRequest"/>
 </events>
