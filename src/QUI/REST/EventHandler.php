@@ -29,8 +29,15 @@ class EventHandler
             return;
         }
 
+        $Package = QUI::getPackage('quiqqer/rest');
+        $Config  = $Package->getConfig();
+
         $uri      = $uri . '/';
-        $basePath = '/api/';
+        $basePath = $Config->getValue('general', 'basePath');
+
+        if (empty($basePath)) {
+            $basePath = '';
+        }
 
         if (strpos($uri, $basePath) === false) {
             return;
