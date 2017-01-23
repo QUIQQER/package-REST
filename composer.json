@@ -21,7 +21,7 @@
   },
   "autoload": {
     "psr-4": {
-      "QUI\\Api": "src/QUI/Api"
+      "QUI\\REST\\": "src/QUI/REST"
     }
   }
 }
