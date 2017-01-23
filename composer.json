@@ -16,9 +16,11 @@
     "email": "support@pcsg.de"
   },
   "require": {
+    "php": ">=7",
     "quiqqer/quiqqer": "*",
     "slim/slim": "3.*",
-    "oscarotero/psr7-middlewares": "3.*"
+    "oscarotero/psr7-middlewares": "3.*",
+    "chadicus/slim-oauth2-middleware": "3.*"
   },
   "autoload": {
     "psr-4": {
