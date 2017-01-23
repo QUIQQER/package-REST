@@ -20,6 +20,5 @@ class Server
      */
     public static function onRequest($url)
     {
-
     }
 }
