@@ -4,9 +4,9 @@
  * This file contains \QUI\REST\EventHandler
  */
 
-namespace QUI\Api;
+namespace QUI\REST;
 
-use QUI\REST\Server;
+use QUI;
 
 /**
  * QUIQQER Event Handling
@@ -15,9 +15,32 @@ use QUI\REST\Server;
  */
 class EventHandler
 {
-    public static function onRequest(\QUI\Rewrite $Rewrite, $url)
+    /**
+     * @param QUI\Rewrite $Rewrite
+     * @param string $url
+     */
+    public static function onRequest(QUI\Rewrite $Rewrite, $url)
     {
-        echo $url;
+        $Request = QUI::getRequest();
+        $uri     = $Request->getRequestUri();
+
+        // ask rest domain
+        if (empty($url)) {
+            return;
+        }
+
+        $uri      = $uri . '/';
+        $basePath = '/api/';
+
+        if (strpos($uri, $basePath) === false) {
+            return;
+        }
+
+        $Server = new Server(array(
+            'basePath' => $basePath
+        ));
+
+        $Server->run();
         exit;
     }
 }

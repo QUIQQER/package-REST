@@ -17,7 +17,8 @@
   },
   "require": {
     "quiqqer/quiqqer": "*",
-    "slim/slim": "3.*"
+    "slim/slim": "3.*",
+    "oscarotero/psr7-middlewares": "3.*"
   },
   "autoload": {
     "psr-4": {

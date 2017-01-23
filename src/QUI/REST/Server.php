@@ -6,6 +6,16 @@
 
 namespace QUI\REST;
 
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
+
+use Psr7Middlewares\Middleware;
+use Psr7Middlewares\Middleware\BasePath;
+
+use QUI;
+use Slim;
+use Monolog;
+
 /**
  * The Rest Server
  *
@@ -14,11 +24,71 @@ namespace QUI\REST;
 class Server
 {
     /**
-     * Execute the REST Manager
-     *
-     * @param String $url
+     * @var array
      */
-    public static function onRequest($url)
+    protected $config = array();
+
+    /**
+     * @var Slim\App
+     */
+    protected $Slim;
+
+    /**
+     * Server constructor.
+     */
+    public function __construct($config = array())
     {
+        // slim
+        $this->Slim = new Slim\App();
+        $container  = $this->Slim->getContainer();
+
+        $container['logger'] = function () {
+            $Logger = QUI\Log\Logger::getLogger();
+
+            $Logger->pushHandler(
+                new Monolog\Handler\StreamHandler(VAR_DIR . "log/rest.log")
+            );
+
+            return $Logger;
+        };
+
+        // config
+        $this->config = $config;
+
+        if (!is_array($this->config)) {
+            $this->config = array();
+        }
+
+        if (!isset($this->config['basPath'])) {
+            $this->config['basPath'] = '';
+        }
+    }
+
+    /**
+     * Server constructor.
+     */
+    public function run()
+    {
+        // Hello World
+        $this->Slim->get('/hello/{name}', function (Request $Request, Response $Response, $args) {
+            return $Response->write("Hello " . $args['name']);
+        });
+
+        // register plugins
+        $this->Slim->add(
+            Middleware::BasePath('/web/public')->autodetect(true)
+        );
+
+        $this->Slim->run();
+    }
+
+    /**
+     * Return the Slim App Object
+     *
+     * @return Slim\App
+     */
+    public function getSlim()
+    {
+        return $this->Slim;
     }
 }
