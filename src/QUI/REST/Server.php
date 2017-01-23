@@ -59,8 +59,8 @@ class Server
             $this->config = array();
         }
 
-        if (!isset($this->config['basPath'])) {
-            $this->config['basPath'] = '';
+        if (!isset($this->config['basePath'])) {
+            $this->config['basePath'] = '';
         }
     }
 
@@ -76,7 +76,7 @@ class Server
 
         // register plugins
         $this->Slim->add(
-            Middleware::BasePath('/web/public')->autodetect(true)
+            (new BasePath($this->config['basePath']))->autodetect(true)
         );
 
         $this->Slim->run();
