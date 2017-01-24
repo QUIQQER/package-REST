@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locales>
+    <groups name="quiqqer/rest" datatype="js,php">
+        <locale name="package.title">
+            <de><![CDATA[QUIQQER - REST API]]></de>
+            <en><![CDATA[QUIQQER - REST API]]></en>
+        </locale>
+        <locale name="package.title">
+            <de><![CDATA[Erweitert QUIQQER um eine REST API Verwaltung (Representational State Transfer).]]></de>
+            <en><![CDATA[Extends QUIQQER with a REST API Management (Representational State Transfer).]]></en>
+        </locale>
+
+        <locale name="settings.cron.title">
+            <de><![CDATA[REST Host Einstellungen]]></de>
+            <en><![CDATA[REST Host Settings]]></en>
+        </locale>
+        <locale name="settings.baseHost">
+            <de><![CDATA[Basis-Host]]></de>
+            <en><![CDATA[Base host]]></en>
+        </locale>
+        <locale name="settings.basePath">
+            <de><![CDATA[Basispfad]]></de>
+            <en><![CDATA[Base path]]></en>
+        </locale>
+
+    </groups>
+</locales>

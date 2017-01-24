@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiqqer>
+    <settings>
+
+        <config>
+            <section name="general">
+                <conf name="baseHost">
+                    <type><![CDATA[string]]></type>
+                    <defaultvalue/>
+                </conf>
+                <conf name="basePath">
+                    <type><![CDATA[string]]></type>
+                    <defaultvalue/>
+                </conf>
+            </section>
+        </config>
+
+        <window name="quiqqer-server">
+            <title>REST (Representational State Transfer)</title>
+            <params>
+                <icon>fa fa-server</icon>
+            </params>
+
+            <categories>
+                <category name="cron_settings">
+                    <text>REST (Representational State Transfer)</text>
+                    <icon>fa fa-braille</icon>
+
+                    <settings title="settings" name="settings">
+                        <title>
+                            <locale group="quiqqer/rest" var="settings.cron.title"/>
+                        </title>
+                        <input conf="general.baseHost">
+                            <text>
+                                <locale group="quiqqer/rest" var="settings.baseHost"/>
+                            </text>
+                        </input>
+                        <input conf="general.basePath">
+                            <text>
+                                <locale group="quiqqer/rest" var="settings.basePath"/>
+                            </text>
+                        </input>
+                    </settings>
+
+                </category>
+            </categories>
+        </window>
+
+    </settings>
+</quiqqer>

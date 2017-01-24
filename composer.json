@@ -18,6 +18,7 @@
   "require": {
     "php": ">=7",
     "quiqqer/quiqqer": "*",
+    "quiqqer/oauth-server": "dev-dev",
     "slim/slim": "3.*",
     "oscarotero/psr7-middlewares": "3.*",
     "chadicus/slim-oauth2-middleware": "3.*"
