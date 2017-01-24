@@ -2,7 +2,8 @@
 QUIQQER REST
 ========
 
-Erweitert QUIQQER um eine REST API Verwaltung
+Erweitert QUIQQER um einen REST API Server.
+QUIQQER REST ermöglicht es jedem Paket eine REST API zur Verfügung zu stellen.
 
 Paketname:
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file contains \QUI\Api\REST
+ * This file contains \QUI\REST\Server
  */
 
 namespace QUI\REST;
