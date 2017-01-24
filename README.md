@@ -22,6 +22,10 @@ Installation
 
 Der Paketname ist: quiqqer/rest
 
+Server:
+
+- git@dev.quiqqer.com:quiqqer/package-rest.git
+- git@dev.quiqqer.com:quiqqer/oauth-server.git
 
 Mitwirken
 ----------
