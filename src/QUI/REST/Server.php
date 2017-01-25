@@ -33,6 +33,33 @@ class Server
     protected $Slim;
 
     /**
+     * Return a server instance with the quiqqer system configuration
+     * @return Server
+     */
+    public static function getInstance()
+    {
+        $Package = QUI::getPackage('quiqqer/rest');
+        $Config  = $Package->getConfig();
+
+        $basePath = $Config->getValue('general', 'basePath');
+        $baseHost = $Config->getValue('general', 'baseHost');
+
+        if (empty($baseHost)) {
+            $baseHost = HOST;
+        }
+
+
+        if (empty($basePath)) {
+            $basePath = '';
+        }
+
+        return new self(array(
+            'basePath' => $basePath,
+            'baseHost' => $baseHost
+        ));
+    }
+
+    /**
      * Server constructor.
      *
      * @param array $config - optional
@@ -93,6 +120,16 @@ class Server
         if (!isset($this->config['basePath'])) {
             $this->config['basePath'] = '';
         }
+    }
+
+    /**
+     * Return the REST API Address
+     *
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->config['baseHost'] . $this->config['basePath'];
     }
 
     /**
@@ -208,6 +245,8 @@ class Server
                 $patterns[] = $Route->getPattern();
             }
         }
+
+        sort($patterns);
 
         $output = '<pre>
   _______          _________ _______  _______  _______  _______
