@@ -219,8 +219,8 @@ class Server
                 if ($Provider instanceof ProviderInterface) {
                     $result[] = $Provider;
                 }
-            } catch (\Exception $exception) {
-                QUI\System\Log::writeException($provider);
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
             }
         }
 
