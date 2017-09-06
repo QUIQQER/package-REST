@@ -5,9 +5,9 @@
             <de><![CDATA[QUIQQER - REST API]]></de>
             <en><![CDATA[QUIQQER - REST API]]></en>
         </locale>
-        <locale name="package.title">
-            <de><![CDATA[Erweitert QUIQQER um eine REST API Verwaltung (Representational State Transfer).]]></de>
-            <en><![CDATA[Extends QUIQQER with a REST API Management (Representational State Transfer).]]></en>
+        <locale name="package.description">
+            <de><![CDATA[Erweitert QUIQQER um einen REST API Server. QUIQQER REST ermöglicht es jedem Paket eine REST API zur Verfügung zu stellen.]]></de>
+            <en><![CDATA[Extend QUIQQER with a REST API server. QUIQQER REST allows each package to provide a REST API.]]></en>
         </locale>
 
         <locale name="settings.cron.title">

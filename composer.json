@@ -1,7 +1,7 @@
 {
   "name": "quiqqer/rest",
   "type": "quiqqer-library",
-  "description": "QUIQQER REST API. Extend the QUIQQER System with a REST API Management",
+  "description": "Extend QUIQQER with a REST API server. QUIQQER REST allows each package to provide a REST API.",
   "version": "dev-dev",
   "license": "GPL-3.0+",
   "authors": [
