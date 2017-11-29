@@ -10,7 +10,7 @@
                 </conf>
                 <conf name="basePath">
                     <type><![CDATA[string]]></type>
-                    <defaultvalue/>
+                    <defaultvalue>api/</defaultvalue>
                 </conf>
             </section>
         </config>

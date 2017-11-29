@@ -1,11 +1,26 @@
 <quiqqer>
     <package>
         <title>
-            <locale group="quiqqer/quiqqer" var="package.title"/>
+            <locale group="quiqqer/rest" var="package.title"/>
         </title>
 
         <description>
-            <locale group="quiqqer/quiqqer" var="package.title"/>
+            <locale group="quiqqer/rest" var="package.description"/>
         </description>
+
+        <image src='URL_OPT_DIR/quiqqer/package-rest/bin/images/Logo.png'/>
+
+        <support>
+            <email><![CDATA[support@pcsg.de]]></email>
+            <forum><![CDATA[https://community.quiqqer.com]]></forum>
+            <source><![CDATA[https://dev.quiqqer.com/quiqqer/package-rest]]></source>
+            <issues><![CDATA[https://dev.quiqqer.com/quiqqer/package-rest/issues]]></issues>
+            <wiki><![CDATA[https://dev.quiqqer.com/quiqqer/package-rest/wikis/home]]></wiki>
+        </support>
+
+        <copyright>
+            <name><![CDATA[PCSG - Computer & Internet Service OHG]]></name>
+            <license><![CDATA[GPL-3.0+]]></license>
+        </copyright>
     </package>
 </quiqqer>

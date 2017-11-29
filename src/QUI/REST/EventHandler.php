@@ -22,31 +22,34 @@ class EventHandler
     public static function onRequest(QUI\Rewrite $Rewrite, $url)
     {
         $Request = QUI::getRequest();
-        $uri     = $Request->getRequestUri();
-
-        // ask rest domain
-        if (empty($url)) {
-            return;
-        }
-
         $Package = QUI::getPackage('quiqqer/rest');
         $Config  = $Package->getConfig();
 
-        $uri      = $uri . '/';
         $basePath = $Config->getValue('general', 'basePath');
+        $baseHost = $Config->getValue('general', 'baseHost');
 
-        if (empty($basePath)) {
+        if (!is_string($basePath)) {
             $basePath = '';
         }
 
-        if (strpos($uri, $basePath) === false) {
+        if (!is_string($baseHost)) {
+            $baseHost = '';
+        }
+
+        $uri  = $Request->getRequestUri();
+        $host = $Request->getHost();
+
+        if (!empty($baseHost) && $host != $baseHost) {
             return;
         }
 
-        $Server = new Server(array(
-            'basePath' => $basePath
-        ));
+        $uri = $uri . '/';
 
+        if (!empty($basePath) && strpos($uri, $basePath) === false) {
+            return;
+        }
+
+        $Server = Server::getInstance();
         $Server->run();
         exit;
     }
