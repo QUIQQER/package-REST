@@ -25,7 +25,7 @@ class Server
     /**
      * @var array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var Slim\App
@@ -34,7 +34,9 @@ class Server
 
     /**
      * Return a server instance with the quiqqer system configuration
+     *
      * @return Server
+     * @throws QUI\Exception
      */
     public static function getInstance()
     {
@@ -53,10 +55,10 @@ class Server
             $basePath = '';
         }
 
-        return new self(array(
+        return new self([
             'basePath' => $basePath,
             'baseHost' => $baseHost
-        ));
+        ]);
     }
 
     /**
@@ -64,7 +66,7 @@ class Server
      *
      * @param array $config - optional
      */
-    public function __construct($config = array())
+    public function __construct($config = [])
     {
         // slim
         $this->Slim = new Slim\App();
@@ -74,7 +76,7 @@ class Server
             $Logger = QUI\Log\Logger::getLogger();
 
             $Logger->pushHandler(
-                new Monolog\Handler\StreamHandler(VAR_DIR . "log/rest.log")
+                new Monolog\Handler\StreamHandler(VAR_DIR."log/rest.log")
             );
 
             return $Logger;
@@ -88,16 +90,16 @@ class Server
             ) use ($container) {
 
                 if ($Exception instanceof QUI\Exception) {
-                    $result = array(
+                    $result = [
                         'error' => $Exception->toArray()
-                    );
+                    ];
 
                     QUI\System\Log::writeException(
                         $Exception,
                         QUI\System\Log::LEVEL_ERROR,
-                        array(
+                        [
                             'package' => 'quiqqer/rest'
-                        ),
+                        ],
                         'rest.log'
                     );
 
@@ -114,7 +116,7 @@ class Server
         $this->config = $config;
 
         if (!is_array($this->config)) {
-            $this->config = array();
+            $this->config = [];
         }
 
         if (!isset($this->config['basePath'])) {
@@ -129,11 +131,13 @@ class Server
      */
     public function getAddress()
     {
-        return $this->config['baseHost'] . $this->config['basePath'];
+        return $this->config['baseHost'].$this->config['basePath'];
     }
 
     /**
      * Server constructor.
+     *
+     * @throws \Exception
      */
     public function run()
     {
@@ -148,7 +152,7 @@ class Server
 
         // Hello World
         $this->Slim->get('/hello/{name}', function (RequestInterface $Request, ResponseInterface $Response, $args) {
-            return $Response->write("Hello " . $args['name']);
+            return $Response->write("Hello ".$args['name']);
         });
 
 
@@ -186,16 +190,23 @@ class Server
     protected function getProvidersFromPackages()
     {
         $packages = QUI::getPackageManager()->getInstalled();
-        $result   = array();
+        $result   = [];
 
         try {
             $providerList = QUI\Cache\Manager::get('quiqqer/rest/providerList');
         } catch (QUI\Cache\Exception $Exception) {
-            $providerList = array();
+            $providerList = [];
 
             /* @var $Package QUI\Package\Package */
             foreach ($packages as $package) {
-                $provider = QUI::getPackage($package['name'])->getProvider();
+                try {
+                    $Package = QUI::getPackage($package['name']);
+                } catch (QUI\Exception $Exception) {
+                    QUI\System\Log::writeException($Exception);
+                    continue;
+                }
+
+                $provider = $Package->getProvider();
                 $provider = array_filter($provider, function ($key) {
                     return $key === 'rest';
                 }, \ARRAY_FILTER_USE_KEY);
@@ -205,14 +216,22 @@ class Server
                 }
             }
 
-            QUI\Cache\Manager::set(
-                'quiqqer/rest/providerList',
-                $providerList
-            );
+            try {
+                QUI\Cache\Manager::set(
+                    'quiqqer/rest/providerList',
+                    $providerList
+                );
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+            }
         }
 
         // initialize the instances
         foreach ($providerList as $provider) {
+            if (!class_exists($provider)) {
+                continue;
+            }
+
             try {
                 $Provider = new $provider();
 
@@ -237,7 +256,7 @@ class Server
      */
     protected function help(RequestInterface $Request, ResponseInterface $Response, $args)
     {
-        $patterns = array();
+        $patterns = [];
         $routes   = $this->Slim->getContainer()->get('router')->getRoutes();
 
         foreach ($routes as $Route) {
@@ -265,7 +284,7 @@ class Server
 ';
 
         foreach ($patterns as $pattern) {
-            $output .= ' - ' . $pattern . "\n\n";
+            $output .= ' - '.$pattern."\n\n";
         }
 
         $output .= '</pre>';
