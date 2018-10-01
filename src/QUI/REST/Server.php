@@ -32,6 +32,8 @@ class Server
      */
     protected $Slim;
 
+    protected $packageProdiversRegistered = false;
+
     /**
      * Return a server instance with the quiqqer system configuration
      *
@@ -155,6 +157,26 @@ class Server
             return $Response->write("Hello ".$args['name']);
         });
 
+        $this->registerPackageProviders();
+
+        // register middlewares
+        $this->Slim->add(
+            (new BasePath($this->config['basePath']))->autodetect(true)
+        );
+
+        $this->Slim->run();
+    }
+
+    /**
+     * Register all REST-Providers fro package.xml files
+     *
+     * @return void
+     */
+    public function registerPackageProviders()
+    {
+        if ($this->packageProdiversRegistered) {
+            return;
+        }
 
         // packages provider
         $provider = $this->getProvidersFromPackages();
@@ -164,12 +186,33 @@ class Server
             $Provider->register($this);
         }
 
-        // register middlewares
-        $this->Slim->add(
-            (new BasePath($this->config['basePath']))->autodetect(true)
-        );
+        $this->packageProdiversRegistered = true;
+    }
 
-        $this->Slim->run();
+    /**
+     * Get all entry points (routes) of all registered REST prodivers
+     *
+     * @return array
+     */
+    public function getEntryPoints()
+    {
+        $this->registerPackageProviders();
+        $routes      = $this->getSlim()->getContainer()->get('router')->getRoutes();
+        $entryPoints = [];
+
+        /** @var \Slim\Interfaces\RouteInterface $Route */
+        foreach ($routes as $Route) {
+            $pattern      = $Route->getPattern();
+            $patternParts = explode('/', $pattern);
+
+            if (isset($patternParts[1])) {
+                $entryPoints[] = $patternParts[1];
+            }
+        }
+
+        $entryPoints = array_unique($entryPoints);
+
+        return array_values($entryPoints);
     }
 
     /**
@@ -185,7 +228,7 @@ class Server
     /**
      * Return all provider from the packages
      *
-     * @return array
+     * @return ProviderInterface[]
      */
     protected function getProvidersFromPackages()
     {
