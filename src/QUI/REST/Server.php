@@ -35,6 +35,13 @@ class Server
     protected $packageProdiversRegistered = false;
 
     /**
+     * Last instance of this class initiaded by getInstance()
+     *
+     * @var \QUI\Rest\Server
+     */
+    protected static $currentInstance = null;
+
+    /**
      * Return a server instance with the quiqqer system configuration
      *
      * @return Server
@@ -57,10 +64,29 @@ class Server
             $basePath = '';
         }
 
-        return new self([
+        self::$currentInstance = new self([
             'basePath' => $basePath,
             'baseHost' => $baseHost
         ]);
+
+        return self::$currentInstance;
+    }
+
+    /**
+     * Returns the last instance that was initiated with getInstance()
+     *
+     * If no instance has been initiated -> create a new one
+     *
+     * @return \QUI\REST\Server
+     * @throws QUI\Exception
+     */
+    public static function getCurrentInstance()
+    {
+        if (!is_null(self::$currentInstance)) {
+            return self::$currentInstance;
+        }
+
+        return self::getInstance();
     }
 
     /**
@@ -202,12 +228,7 @@ class Server
 
         /** @var \Slim\Interfaces\RouteInterface $Route */
         foreach ($routes as $Route) {
-            $pattern      = $Route->getPattern();
-            $patternParts = explode('/', $pattern);
-
-            if (isset($patternParts[1])) {
-                $entryPoints[] = $patternParts[1];
-            }
+            $entryPoints[] = $Route->getPattern();
         }
 
         $entryPoints = array_unique($entryPoints);
