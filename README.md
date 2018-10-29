@@ -1,51 +1,42 @@
+![QUIQQER REST](bin/images/Readme.jpg)
 
 QUIQQER REST
 ========
 
-Erweitert QUIQQER um einen REST API Server.
-QUIQQER REST ermöglicht es jedem Paket eine REST API zur Verfügung zu stellen.
+With QUIQQER REST you are able to implement a REST Server in QUIQQER and create
+packages that bring their own REST endpoints. 
 
-Paketname:
+Package Name:
 
     quiqqer/rest
 
 
-Features (Funktionen)
+Features
 --------
+* Build packages that provider their own custom REST API endpoints
+* Based on Slim (https://www.slimframework.com/)
 
-- REST API -> Einstellbar als eigener Host / Domain oder als Subfolder im Projekt
-- Einstellbare Limits für alle REST Request
-    - Mit oauth Server Integration
-
+Usage
+---
+See our [Wiki](https://dev.quiqqer.com/quiqqer/package-rest/wikis/dev/package) for help (currently available in German only)
 
 Installation
 ------------
+The Package Name is: quiqqer/rest
 
-Der Paketname ist: quiqqer/rest
-
-Server:
-
-- git@dev.quiqqer.com:quiqqer/package-rest.git
-- git@dev.quiqqer.com:quiqqer/oauth-server.git
-
-Mitwirken
+Contribute
 ----------
-
-- Issue Tracker: https://dev.quiqqer.com/quiqqer/package-rest/issues
-- Source Code: https://dev.quiqqer.com/quiqqer/package-rest/tree/master
-
+- Project: https://dev.quiqqer.com/quiqqer/rest
+- Issue Tracker: https://dev.quiqqer.com/quiqqer/rest/issues
+- Source Code: https://dev.quiqqer.com/quiqqer/rest/tree/master
 
 Support
 -------
+If you found any errors or have wishes or suggestions for improvement,
+please contact us by email at support@pcsg.de.
 
-Falls Sie einen Fehler gefunden haben oder Verbesserungen wünschen,
-senden Sie bitte eine E-Mail an support@pcsg.de.
+We will transfer your message to the responsible developers.
 
-
-Lizenz
+License
 -------
-
 GPL-3.0+
-
-Entwickler
---------

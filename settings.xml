@@ -15,7 +15,7 @@
             </section>
         </config>
 
-        <window name="quiqqer-server">
+        <window name="quiqqer-rest">
             <title>REST (Representational State Transfer)</title>
             <params>
                 <icon>fa fa-server</icon>
