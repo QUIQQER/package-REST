@@ -7,6 +7,7 @@
 namespace QUI\REST;
 
 use QUI;
+use Slim\App;
 
 /**
  * QUIQQER Event Handling
@@ -43,13 +44,13 @@ class EventHandler
             return;
         }
 
-        $uri = $uri . '/';
+        $uri = $uri.'/';
 
         if (!empty($basePath) && strpos($uri, $basePath) === false) {
             return;
         }
 
-        $Server = Server::getInstance();
+        $Server = Server::getCurrentInstance();
         $Server->run();
         exit;
     }

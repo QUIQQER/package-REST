@@ -32,6 +32,15 @@ class Server
      */
     protected $Slim;
 
+    protected $packageProdiversRegistered = false;
+
+    /**
+     * Last instance of this class initiaded by getInstance()
+     *
+     * @var \QUI\Rest\Server
+     */
+    protected static $currentInstance = null;
+
     /**
      * Return a server instance with the quiqqer system configuration
      *
@@ -55,10 +64,29 @@ class Server
             $basePath = '';
         }
 
-        return new self([
+        self::$currentInstance = new self([
             'basePath' => $basePath,
             'baseHost' => $baseHost
         ]);
+
+        return self::$currentInstance;
+    }
+
+    /**
+     * Returns the last instance that was initiated with getInstance()
+     *
+     * If no instance has been initiated -> create a new one
+     *
+     * @return \QUI\REST\Server
+     * @throws QUI\Exception
+     */
+    public static function getCurrentInstance()
+    {
+        if (!is_null(self::$currentInstance)) {
+            return self::$currentInstance;
+        }
+
+        return self::getInstance();
     }
 
     /**
@@ -155,6 +183,26 @@ class Server
             return $Response->write("Hello ".$args['name']);
         });
 
+        $this->registerPackageProviders();
+
+        // register middlewares
+        $this->Slim->add(
+            (new BasePath($this->config['basePath']))->autodetect(true)
+        );
+
+        $this->Slim->run();
+    }
+
+    /**
+     * Register all REST-Providers fro package.xml files
+     *
+     * @return void
+     */
+    public function registerPackageProviders()
+    {
+        if ($this->packageProdiversRegistered) {
+            return;
+        }
 
         // packages provider
         $provider = $this->getProvidersFromPackages();
@@ -164,12 +212,28 @@ class Server
             $Provider->register($this);
         }
 
-        // register middlewares
-        $this->Slim->add(
-            (new BasePath($this->config['basePath']))->autodetect(true)
-        );
+        $this->packageProdiversRegistered = true;
+    }
 
-        $this->Slim->run();
+    /**
+     * Get all entry points (routes) of all registered REST prodivers
+     *
+     * @return array
+     */
+    public function getEntryPoints()
+    {
+        $this->registerPackageProviders();
+        $routes      = $this->getSlim()->getContainer()->get('router')->getRoutes();
+        $entryPoints = [];
+
+        /** @var \Slim\Interfaces\RouteInterface $Route */
+        foreach ($routes as $Route) {
+            $entryPoints[] = $Route->getPattern();
+        }
+
+        $entryPoints = array_unique($entryPoints);
+
+        return array_values($entryPoints);
     }
 
     /**
@@ -185,7 +249,7 @@ class Server
     /**
      * Return all provider from the packages
      *
-     * @return array
+     * @return ProviderInterface[]
      */
     protected function getProvidersFromPackages()
     {
