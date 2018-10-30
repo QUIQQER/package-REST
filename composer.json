@@ -23,7 +23,7 @@
   },
   "require": {
     "php": ">=7",
-    "quiqqer/quiqqer": ">=1.1|*@dev",
+    "quiqqer/quiqqer": "^1.1|*@dev",
     "slim/slim": "3.*",
     "oscarotero/psr7-middlewares": "3.*",
     "chadicus/slim-oauth2-middleware": "3.*"
