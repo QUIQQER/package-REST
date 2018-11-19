@@ -3,6 +3,7 @@
 namespace QUI\REST\Utils;
 
 use Psr\Http\Message\ServerRequestInterface;
+use QUI\Utils\Security\Orthos;
 
 class RequestUtils
 {
@@ -45,6 +46,24 @@ class RequestUtils
         }
 
         return false;
+    }
+
+    /**
+     * Get an argument (path variable) from a Request
+     *
+     * @param ServerRequestInterface $Request
+     * @param string $arg - Argument name
+     * @return string|false - (sanitized) arg or false if not set/found
+     */
+    public static function getArgFromRequest(ServerRequestInterface $Request, $arg)
+    {
+        $content = $Request->getAttribute($arg);
+
+        if (empty($content)) {
+            return false;
+        }
+
+        return Orthos::clear($content);
     }
 
     /**
