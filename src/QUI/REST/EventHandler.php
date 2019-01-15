@@ -35,6 +35,8 @@ class EventHandler
 
         if (!is_string($baseHost)) {
             $baseHost = '';
+        } else {
+            $baseHost = str_replace(['http://', 'https://'], '', $baseHost);
         }
 
         $uri  = $Request->getRequestUri();
@@ -46,7 +48,7 @@ class EventHandler
 
         $uri = $uri.'/';
 
-        if (!empty($basePath) && strpos($uri, $basePath) === false) {
+        if (!empty($basePath) && mb_strpos($uri, $basePath) === false) {
             return;
         }
 
