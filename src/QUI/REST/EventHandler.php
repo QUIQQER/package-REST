@@ -37,6 +37,7 @@ class EventHandler
             $baseHost = '';
         } else {
             $baseHost = str_replace(['http://', 'https://'], '', $baseHost);
+            $baseHost = rtrim($baseHost, '/');
         }
 
         $uri  = $Request->getRequestUri();
