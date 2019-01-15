@@ -247,6 +247,16 @@ class Server
     }
 
     /**
+     * Return REST API base path (relative to URI)
+     *
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->config['basePath'];
+    }
+
+    /**
      * Return all provider from the packages
      *
      * @return ProviderInterface[]
