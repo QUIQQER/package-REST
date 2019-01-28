@@ -2,7 +2,7 @@
   "name": "quiqqer/rest",
   "type": "quiqqer-plugin",
   "description": "Extend QUIQQER with a REST API server. QUIQQER REST allows each package to provide a REST API.",
-  "version": "dev-master",
+  "version": "1.2.0",
   "license": "GPL-3.0+",
   "authors": [
     {
@@ -23,7 +23,7 @@
   },
   "require": {
     "php": ">=7",
-    "quiqqer/quiqqer": "^1.1|*@dev",
+    "quiqqer/quiqqer": "^1.2|*@dev",
     "slim/slim": "3.*",
     "psr/http-message": "^1",
     "oscarotero/psr7-middlewares": "3.*",
