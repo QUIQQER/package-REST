@@ -1,15 +1,10 @@
 <?php
 
-/**
- * This file contains \QUI\REST\Server
- */
-
 namespace QUI\REST;
 
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
-
-use Psr7Middlewares\Middleware\BasePath;
+use Psr\Http\Server\RequestHandlerInterface;
 
 use QUI;
 use Slim;
@@ -96,9 +91,26 @@ class Server
      */
     public function __construct($config = [])
     {
+        // config
+        $this->config = $config;
+
+        if (!is_array($this->config)) {
+            $this->config = [];
+        }
+
+        if (!isset($this->config['basePath'])) {
+            $this->config['basePath'] = '';
+        }
+
         // slim
-        $this->Slim = new Slim\App();
-        $container  = $this->Slim->getContainer();
+        $this->Slim = new Slim\App(
+            new ResponseFactory()
+        );
+
+//        $this->Slim = Slim\Factory\AppFactory::create();
+        $this->Slim->setBasePath(\rtrim($this->config['basePath'], '/'));
+
+        $container = $this->Slim->getContainer();
 
         $container['logger'] = function () {
             $Logger = QUI\Log\Logger::getLogger();
@@ -139,17 +151,6 @@ class Server
                 return $Response;
             };
         };
-
-        // config
-        $this->config = $config;
-
-        if (!is_array($this->config)) {
-            $this->config = [];
-        }
-
-        if (!isset($this->config['basePath'])) {
-            $this->config['basePath'] = '';
-        }
     }
 
     /**
@@ -180,15 +181,11 @@ class Server
 
         // Hello World
         $this->Slim->get('/hello/{name}', function (RequestInterface $Request, ResponseInterface $Response, $args) {
+            /** @var Response $Response */
             return $Response->write("Hello ".$args['name']);
         });
 
         $this->registerPackageProviders();
-
-        // register middlewares
-        $this->Slim->add(
-            (new BasePath($this->config['basePath']))->autodetect(true)
-        );
 
         $this->Slim->run();
     }
