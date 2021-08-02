@@ -6,12 +6,16 @@
 
 namespace QUI\REST;
 
+use Middlewares\Utils\Dispatcher;
+use Middlewares\Utils\Factory;
+use Middlewares\Utils\FactoryDiscovery;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
 
-use Psr7Middlewares\Middleware\BasePath;
+use Middlewares\BasePath;
 
 use QUI;
+use Relay\Relay;
 use Slim;
 use Monolog;
 
@@ -186,9 +190,34 @@ class Server
         $this->registerPackageProviders();
 
         // register middlewares
-        $this->Slim->add(
-            (new BasePath($this->config['basePath']))->autodetect(true)
-        );
+        $BasePath   = new BasePath($this->config['basePath']);
+        $Dispatcher = new Relay([
+            $BasePath
+        ]);
+
+        $Dispatcher = new \mindplay\middleman\Dispatcher([
+            $BasePath,
+//            function ($request) use ($factory) {
+//                return $factory->createResponse(200)->withBody(...); // abort middleware stack and return the response
+//            },
+        ]);
+
+        $this->Slim->add(function ($Request, $Response, $next) use ($BasePath, $Dispatcher) {
+            /**
+             * @var RequestInterface $Request
+             */
+//            $Response = Dispatcher::run([$BasePath], $Request);
+
+//            $Dispatcher = new Relay([
+//
+//            ]);
+
+            $Response = Dispatcher::run([
+                $BasePath
+            ], $Request);
+
+            return $next($Request, $Response);
+        });
 
         $this->Slim->run();
     }
