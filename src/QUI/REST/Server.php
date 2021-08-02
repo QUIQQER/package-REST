@@ -1,21 +1,12 @@
 <?php
 
-/**
- * This file contains \QUI\REST\Server
- */
-
 namespace QUI\REST;
 
-use Middlewares\Utils\Dispatcher;
-use Middlewares\Utils\Factory;
-use Middlewares\Utils\FactoryDiscovery;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
-
-use Middlewares\BasePath;
+use Psr\Http\Server\RequestHandlerInterface;
 
 use QUI;
-use Relay\Relay;
 use Slim;
 use Monolog;
 
@@ -100,9 +91,26 @@ class Server
      */
     public function __construct($config = [])
     {
+        // config
+        $this->config = $config;
+
+        if (!is_array($this->config)) {
+            $this->config = [];
+        }
+
+        if (!isset($this->config['basePath'])) {
+            $this->config['basePath'] = '';
+        }
+
         // slim
-        $this->Slim = new Slim\App();
-        $container  = $this->Slim->getContainer();
+        $this->Slim = new Slim\App(
+            new ResponseFactory()
+        );
+
+//        $this->Slim = Slim\Factory\AppFactory::create();
+        $this->Slim->setBasePath(\rtrim($this->config['basePath'], '/'));
+
+        $container = $this->Slim->getContainer();
 
         $container['logger'] = function () {
             $Logger = QUI\Log\Logger::getLogger();
@@ -143,17 +151,6 @@ class Server
                 return $Response;
             };
         };
-
-        // config
-        $this->config = $config;
-
-        if (!is_array($this->config)) {
-            $this->config = [];
-        }
-
-        if (!isset($this->config['basePath'])) {
-            $this->config['basePath'] = '';
-        }
     }
 
     /**
@@ -184,40 +181,11 @@ class Server
 
         // Hello World
         $this->Slim->get('/hello/{name}', function (RequestInterface $Request, ResponseInterface $Response, $args) {
+            /** @var Response $Response */
             return $Response->write("Hello ".$args['name']);
         });
 
         $this->registerPackageProviders();
-
-        // register middlewares
-        $BasePath   = new BasePath($this->config['basePath']);
-        $Dispatcher = new Relay([
-            $BasePath
-        ]);
-
-        $Dispatcher = new \mindplay\middleman\Dispatcher([
-            $BasePath,
-//            function ($request) use ($factory) {
-//                return $factory->createResponse(200)->withBody(...); // abort middleware stack and return the response
-//            },
-        ]);
-
-        $this->Slim->add(function ($Request, $Response, $next) use ($BasePath, $Dispatcher) {
-            /**
-             * @var RequestInterface $Request
-             */
-//            $Response = Dispatcher::run([$BasePath], $Request);
-
-//            $Dispatcher = new Relay([
-//
-//            ]);
-
-            $Response = Dispatcher::run([
-                $BasePath
-            ], $Request);
-
-            return $next($Request, $Response);
-        });
 
         $this->Slim->run();
     }
