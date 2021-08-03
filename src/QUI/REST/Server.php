@@ -2,13 +2,13 @@
 
 namespace QUI\REST;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
+use Psr\Log\LoggerInterface;
 use QUI;
 use Slim;
-use Monolog;
 
 /**
  * The Rest Server
@@ -110,47 +110,56 @@ class Server
 //        $this->Slim = Slim\Factory\AppFactory::create();
         $this->Slim->setBasePath(\rtrim($this->config['basePath'], '/'));
 
-        $container = $this->Slim->getContainer();
+        // Define Custom Error Handler
+        $customErrorHandler = function (
+            ServerRequestInterface $Request,
+            \Throwable $Exception,
+            bool $displayErrorDetails,
+            bool $logErrors,
+            bool $logErrorDetails,
+            ?LoggerInterface $logger = null
+        ) {
+            if ($Exception instanceof \Exception) {
+                QUI\System\Log::writeException(
+                    $Exception,
+                    QUI\System\Log::LEVEL_ERROR,
+                    [
+                        'package' => 'quiqqer/rest'
+                    ],
+                    'rest.log'
+                );
+            } else {
+                QUI\System\Log::addError(
+                    $Exception->getMessage()
+                    ."\n\n"
+                    .$Exception->getTraceAsString(),
+                    [
+                        'package' => 'quiqqer/rest'
+                    ],
+                    'rest.log'
+                );
+            }
 
-        $container['logger'] = function () {
-            $Logger = QUI\Log\Logger::getLogger();
+            if ($Exception instanceof QUI\Exception) {
+                $result = [
+                    'error' => $Exception->toArray()
+                ];
 
-            $Logger->pushHandler(
-                new Monolog\Handler\StreamHandler(VAR_DIR."log/rest.log")
-            );
+                $Response = $this->Slim->getResponseFactory()->createResponse(
+                    $Exception->getCode(),
+                    \json_encode($result)
+                );
 
-            return $Logger;
+                return $Response->withHeader('Content-Type', 'application/json');
+            }
+
+            return $this->Slim->getResponseFactory()->createResponse(500);
         };
 
-        $container['errorHandler'] = function ($container) {
-            return function (
-                RequestInterface $Request,
-                ResponseInterface $Response,
-                $Exception
-            ) use ($container) {
+        $ErrorMiddleware = $this->Slim->addErrorMiddleware(true, true, true);
+        $ErrorMiddleware->setDefaultErrorHandler($customErrorHandler);
 
-                if ($Exception instanceof QUI\Exception) {
-                    $result = [
-                        'error' => $Exception->toArray()
-                    ];
-
-                    QUI\System\Log::writeException(
-                        $Exception,
-                        QUI\System\Log::LEVEL_ERROR,
-                        [
-                            'package' => 'quiqqer/rest'
-                        ],
-                        'rest.log'
-                    );
-
-                    return $Response->withStatus(500)
-                        ->withHeader('Content-Type', 'application/json')
-                        ->write(json_encode($result));
-                }
-
-                return $Response;
-            };
-        };
+        $this->Slim->addBodyParsingMiddleware();
     }
 
     /**
@@ -220,10 +229,9 @@ class Server
     public function getEntryPoints()
     {
         $this->registerPackageProviders();
-        $routes      = $this->getSlim()->getContainer()->get('router')->getRoutes();
+        $routes      = $this->getSlim()->getRouteCollector()->getRoutes();
         $entryPoints = [];
 
-        /** @var \Slim\Interfaces\RouteInterface $Route */
         foreach ($routes as $Route) {
             $entryPoints[] = $Route->getPattern();
         }
