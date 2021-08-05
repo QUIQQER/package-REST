@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <title>
+    {locale group="quiqqer/rest" var="DocsList.title"}
+    </title>
+</head>
+<body>
+    <h1>{locale group="quiqqer/rest" var="DocsList.title"}</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                {locale group="quiqqer/rest" var="DocsList.tbl.header.title"}
+                </th>
+                <th>
+                {locale group="quiqqer/rest" var="DocsList.tbl.header.docsLink"}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {foreach $entries as $entry}
+                <tr>
+                    <td>
+                        {$entry['title']}
+                    </td>
+                    <td>
+                        {if !empty($entry['docsHtml'])}
+                        <ul>
+                            <li>
+                                <a href="{$entry['docsHtml']}">HTML</a>
+                            </li>
+                            <li>
+                                <a href="{$entry['docsJson']}">JSON (OpenAPI 3.0)</a>
+                            </li>
+                        </ul>
+                        {else}
+                        -
+                        {/if}
+                    </td>
+                </tr>
+            {/foreach}
+        </tbody>
+    </table>
+</body>
+</html>
