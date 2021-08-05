@@ -22,6 +22,23 @@
             <de><![CDATA[Basispfad]]></de>
             <en><![CDATA[Base path]]></en>
         </locale>
+    </groups>
+
+    <groups name="quiqqer/rest" datatype="php">
+
+        <locale name="DocsList.title">
+            <de><![CDATA[QUIQQER REST APIs - Liste]]></de>
+            <en><![CDATA[QUIQQER REST APIs - List]]></en>
+        </locale>
+        <locale name="DocsList.tbl.header.title">
+            <de><![CDATA[API]]></de>
+            <en><![CDATA[API]]></en>
+        </locale>
+        <locale name="DocsList.tbl.header.docsLink">
+            <de><![CDATA[Dokumentation]]></de>
+            <en><![CDATA[Documentation]]></en>
+        </locale>
 
     </groups>
+
 </locales>

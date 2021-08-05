@@ -27,6 +27,14 @@ class Server
      */
     protected $Slim;
 
+    /**
+     * @var bool
+     */
+    protected $basePathsRegistered = false;
+
+    /**
+     * @var bool
+     */
     protected $packageProdiversRegistered = false;
 
     /**
@@ -188,15 +196,193 @@ class Server
             }
         );
 
+        $this->registerBasePaths();
+        $this->registerPackageProviders();
+
+        $this->Slim->run();
+    }
+
+    /**
+     * Register base paths that are alaways available.
+     *
+     * @return void
+     */
+    public function registerBasePaths(): void
+    {
+        if ($this->basePathsRegistered) {
+            return;
+        }
+
         // Hello World
         $this->Slim->get('/hello/{name}', function (RequestInterface $Request, ResponseInterface $Response, $args) {
             /** @var Response $Response */
             return $Response->write("Hello ".$args['name']);
         });
 
-        $this->registerPackageProviders();
+        $this->Slim->get(
+            '/docs/{api_name}/{format}',
+            [$this, 'onGetDocsApi']
+        );
 
-        $this->Slim->run();
+        $this->Slim->get(
+            '/list/{format}',
+            [$this, 'onGetDocsList']
+        );
+
+        $this->basePathsRegistered = true;
+    }
+
+    /**
+     * @param RequestInterface $Request
+     * @param ResponseInterface $Response
+     * @param array $args
+     *
+     * @return ResponseInterface
+     */
+    public function onGetDocsList(
+        RequestInterface $Request,
+        ResponseInterface $Response,
+        array $args
+    ): ResponseInterface {
+        $entries = [];
+
+        foreach ($this->getProvidersFromPackages() as $Provider) {
+            $specificationFile = $Provider->getOpenApiDefinitionFile();
+            $entry             = [
+                'title'    => $Provider->getTitle(),
+                'docsHtml' => false,
+                'docsJson' => false
+            ];
+
+            $baseUrlDocs = $this->getBasePathWithHost().'docs/'.$Provider->getName().'/';
+
+            if (!empty($specificationFile)) {
+                $entry['docsHtml'] = $baseUrlDocs.'html';
+                $entry['docsJson'] = $baseUrlDocs.'json';
+            }
+
+            $entries[] = $entry;
+        }
+
+        $Engine = QUI::getTemplateManager()->getEngine();
+
+        $Engine->assign([
+            'entries' => $entries
+        ]);
+
+        $Package = QUI::getPackage('quiqqer/rest');
+        $tplDir  = $Package->getDir().'bin/template/';
+        $html    = $Engine->fetch($tplDir.'DocsList.html');
+
+        return $Response
+            ->write($html)
+            ->withHeader('Content-Type', 'text/html');
+    }
+
+    /**
+     * @param RequestInterface $Request
+     * @param ResponseInterface $Response
+     * @param array $args
+     *
+     * @return ResponseInterface
+     */
+    public function onGetDocsApi(
+        RequestInterface $Request,
+        ResponseInterface $Response,
+        array $args
+    ): ResponseInterface {
+        $format = $args['format'];
+
+        switch ($format) {
+            case 'html':
+                break;
+
+            default:
+                $format = 'json';
+        }
+
+        $apiName   = $args['api_name'];
+        $providers = $this->getProvidersFromPackages();
+
+        /** @var Response $Response */
+        if (empty($providers[$apiName])) {
+            return $Response->write("No OpenApi docs available for API \"".$apiName."\".");
+        }
+
+        $Provider              = $providers[$apiName];
+        $openApiDefinitionFile = $Provider->getOpenApiDefinitionFile();
+
+        if (
+            !$openApiDefinitionFile ||
+            !\file_exists($openApiDefinitionFile) ||
+            !\is_readable($openApiDefinitionFile)
+        ) {
+            return $Response->write("No OpenApi docs available for API \"".$apiName."\".");
+        }
+
+        $specificationArray = \json_decode(\file_get_contents($openApiDefinitionFile), true);
+
+        // Add servers
+        $specificationArray['servers'] = [
+            [
+                'url' => $this->getBasePathWithHost()
+            ]
+        ];
+
+        try {
+            QUI::getEvents()->fireEvent(
+                'quiqqerRestLoadOpenApiSpecification',
+                [
+                    $apiName,
+                    &$specificationArray
+                ]
+            );
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+        }
+
+        $specificationJson = \json_encode($specificationArray);
+
+        if ($format === 'json') {
+            return $Response
+                ->write($specificationJson)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+        // HTML Output
+        try {
+            $Engine  = QUI::getTemplateManager()->getEngine();
+            $Package = QUI::getPackage('quiqqer/rest');
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+
+            $Response->write('Something went wrong. Please contact an adminstrator.');
+            return $Response->withStatus(500);
+        }
+
+        $tplDir = $Package->getDir().'bin/template/';
+        $varDir = $Package->getVarDir().'bin/';
+
+        QUI\Utils\System\File::mkdir($varDir);
+
+        // Copy file content to bin dir
+        $binFile = $varDir.'specification.json';
+
+        \file_put_contents($binFile, $specificationJson);
+
+        $fullOptDir = QUI::conf('globals', 'host').URL_OPT_DIR;
+        $fullVarDir = QUI::conf('globals', 'host').URL_VAR_DIR;
+
+        $Engine->assign([
+            'openApiSpecificationFile' => \str_replace(VAR_DIR, $fullVarDir, $binFile),
+            'URL_OPT_DIR'              => $fullOptDir
+        ]);
+
+        $html = $Engine->fetch($tplDir.'index.html');
+
+        return $Response
+            ->write($html)
+            ->withHeader('Content-Type', 'text/html');
     }
 
     /**
@@ -228,7 +414,9 @@ class Server
      */
     public function getEntryPoints()
     {
+        $this->registerBasePaths();
         $this->registerPackageProviders();
+
         $routes      = $this->getSlim()->getRouteCollector()->getRoutes();
         $entryPoints = [];
 
@@ -256,9 +444,18 @@ class Server
      *
      * @return string
      */
-    public function getBasePath()
+    public function getBasePath(): string
     {
-        return $this->config['basePath'];
+        return \rtrim($this->config['basePath'], '/').'/';
+    }
+
+    /**
+     * @return string - Base path with host WITH trailing slash (/)
+     */
+    public function getBasePathWithHost(): string
+    {
+        $baseUrl = QUI::conf('globals', 'host');
+        return $baseUrl.$this->getBasePath();
     }
 
     /**
@@ -315,7 +512,7 @@ class Server
                 $Provider = new $provider();
 
                 if ($Provider instanceof ProviderInterface) {
-                    $result[] = $Provider;
+                    $result[$Provider->getName()] = $Provider;
                 }
             } catch (\Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
