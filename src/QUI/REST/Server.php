@@ -312,11 +312,9 @@ class Server
         $Provider              = $providers[$apiName];
         $openApiDefinitionFile = $Provider->getOpenApiDefinitionFile();
 
-        if (
-            !$openApiDefinitionFile ||
+        if (!$openApiDefinitionFile ||
             !\file_exists($openApiDefinitionFile) ||
-            !\is_readable($openApiDefinitionFile)
-        ) {
+            !\is_readable($openApiDefinitionFile)) {
             return $Response->write("No OpenApi docs available for API \"".$apiName."\".");
         }
 
