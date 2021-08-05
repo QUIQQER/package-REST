@@ -4,10 +4,59 @@
     <title>
     {locale group="quiqqer/rest" var="DocsList.title"}
     </title>
+
+    <style>
+    .table {
+      width: 100%;
+      max-width: 100%;
+      background-color: #fff;
+    }
+
+    th,
+    td {
+    padding: 2px;
+    vertical-align: top;
+    border-top: 1px solid #dedede;
+    }
+
+    thead th {
+    vertical-align: bottom;
+    border-bottom: (2 * 1px) solid #dedede;
+    }
+
+    tbody + tbody {
+    border-top: (2 * 1px) solid #dedede;
+    }
+
+    .table {
+    background-color: #dedede;
+    }
+
+    .table-bordered {
+      border:  (2 * 1px) solid #dedede;
+      }
+
+      th,
+      td {
+        border:  (2 * 1px) solid #dedede;
+      }
+
+      thead {
+        th,
+        td {
+          border-bottom-width: (2 * 1px);
+        }
+      }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #ededed;
+      }
+
+    </style>
 </head>
 <body>
     <h1>{locale group="quiqqer/rest" var="DocsList.title"}</h1>
-    <table>
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>
