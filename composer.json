@@ -25,7 +25,8 @@
         "php": "^7.4|^8",
         "quiqqer\/quiqqer": "^1.1|*@dev",
         "slim\/slim": "^4",
-        "psr\/http-message": "^1"
+        "psr\/http-message": "^1",
+        "http-interop/http-factory-guzzle": "^1"
     },
     "autoload": {
         "psr-4": {

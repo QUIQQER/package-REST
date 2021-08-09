@@ -244,6 +244,16 @@ class Server
         ResponseInterface $Response,
         array $args
     ): ResponseInterface {
+        $format = $args['format'];
+
+        switch ($format) {
+            case 'html':
+                break;
+
+            default:
+                $format = 'json';
+        }
+
         $entries = [];
 
         foreach ($this->getProvidersFromPackages() as $Provider) {
@@ -262,6 +272,12 @@ class Server
             }
 
             $entries[] = $entry;
+        }
+
+        if ($format === 'json') {
+            return $Response
+                ->write(\json_encode($entries))
+                ->withHeader('Content-Type', 'application/json');
         }
 
         $Engine = QUI::getTemplateManager()->getEngine();
