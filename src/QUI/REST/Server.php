@@ -28,6 +28,11 @@ class Server
     protected $Slim;
 
     /**
+     * @var Slim\Middleware\ErrorMiddleware
+     */
+    protected $SlimErrorMiddleware;
+
+    /**
      * @var bool
      */
     protected $basePathsRegistered = false;
@@ -164,13 +169,13 @@ class Server
             return $this->Slim->getResponseFactory()->createResponse(500);
         };
 
-        $ErrorMiddleware = $this->Slim->addErrorMiddleware(true, true, true);
-        $ErrorMiddleware->setDefaultErrorHandler($customErrorHandler);
+        $this->SlimErrorMiddleware = $this->Slim->addErrorMiddleware(true, true, true);
+        $this->SlimErrorMiddleware->setDefaultErrorHandler($customErrorHandler);
 
         $Slim = $this->Slim;
 
         // HttpNotFoundException (e.g. route doesn't exist) has to explicitly return an 404 error.
-        $ErrorMiddleware->setErrorHandler(
+        $this->SlimErrorMiddleware->setErrorHandler(
             Slim\Exception\HttpNotFoundException::class,
             function (ServerRequestInterface $Request, \Throwable $Exception, bool $displayErrorDetails) use ($Slim) {
                 $Response = $Slim->getResponseFactory()->createResponse(404);
@@ -181,7 +186,7 @@ class Server
         );
 
         // HttpMethodNotAllowedException has to explicitly return an 405 error.
-        $ErrorMiddleware->setErrorHandler(
+        $this->SlimErrorMiddleware->setErrorHandler(
             Slim\Exception\HttpMethodNotAllowedException::class,
             function (ServerRequestInterface $Request, \Throwable $Exception, bool $displayErrorDetails) use ($Slim) {
                 $Response = $Slim->getResponseFactory()->createResponse(405);;
@@ -475,6 +480,20 @@ class Server
     public function getSlim()
     {
         return $this->Slim;
+    }
+
+    /**
+     * Returns the Slim error middleware.
+     * It has to be used to add custom error handlers.
+     * Adding another/new ErrorHandler middleware to Slim does not work properly.
+     *
+     * @see https://www.slimframework.com/docs/v4/middleware/error-handling.html
+     *
+     * @return Slim\Middleware\ErrorMiddleware
+     */
+    public function getSlimErrorMiddleware()
+    {
+        return $this->SlimErrorMiddleware;
     }
 
     /**
