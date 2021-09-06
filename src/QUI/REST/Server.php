@@ -167,6 +167,30 @@ class Server
         $ErrorMiddleware = $this->Slim->addErrorMiddleware(true, true, true);
         $ErrorMiddleware->setDefaultErrorHandler($customErrorHandler);
 
+        $Slim = $this->Slim;
+
+        // HttpNotFoundException (e.g. route doesn't exist) has to explicitly return an 404 error.
+        $ErrorMiddleware->setErrorHandler(
+            Slim\Exception\HttpNotFoundException::class,
+            function (ServerRequestInterface $Request, \Throwable $Exception, bool $displayErrorDetails) use ($Slim) {
+                $Response = $Slim->getResponseFactory()->createResponse(404);
+                $Response->getBody()->write('404 NOT FOUND');
+
+                return $Response;
+            }
+        );
+
+        // HttpMethodNotAllowedException has to explicitly return an 405 error.
+        $ErrorMiddleware->setErrorHandler(
+            Slim\Exception\HttpMethodNotAllowedException::class,
+            function (ServerRequestInterface $Request, \Throwable $Exception, bool $displayErrorDetails) use ($Slim) {
+                $Response = $Slim->getResponseFactory()->createResponse(405);;
+                $Response->getBody()->write('405 NOT ALLOWED');
+
+                return $Response;
+            }
+        );
+
         $this->Slim->addBodyParsingMiddleware();
     }
 
