@@ -384,12 +384,15 @@ class Server
 
         \file_put_contents($binFile, $specificationJson);
 
-        $fullOptDir = QUI::conf('globals', 'host').URL_OPT_DIR;
-        $fullVarDir = QUI::conf('globals', 'host').URL_VAR_DIR;
+        $fullOptDir = self::getBaseHost().URL_OPT_DIR;
+        $fullVarDir = self::getBaseHost().URL_VAR_DIR;
 
         $Engine->assign([
             'openApiSpecificationFile' => \str_replace(VAR_DIR, $fullVarDir, $binFile),
-            'URL_OPT_DIR'              => $fullOptDir
+            'URL_OPT_DIR'              => $fullOptDir,
+            'apiTitle'                 => !empty($specificationArray['info']['title']) ?
+                $specificationArray['info']['title'] :
+                'REST API Documentation'
         ]);
 
         $html = $Engine->fetch($tplDir.'index.html');
@@ -464,12 +467,25 @@ class Server
     }
 
     /**
+     * @return string - API base host WITHOUT trailing slash (/)
+     */
+    public function getBaseHost(): string
+    {
+        $baseUrl = $this->config['baseHost'];
+
+        if (empty($baseUrl)) {
+            $baseUrl = QUI::conf('globals', 'host');
+        }
+
+        return \rtrim($baseUrl, '/');
+    }
+
+    /**
      * @return string - Base path with host WITH trailing slash (/)
      */
     public function getBasePathWithHost(): string
     {
-        $baseUrl = QUI::conf('globals', 'host');
-        return $baseUrl.$this->getBasePath();
+        return $this->getBaseHost().$this->getBasePath();
     }
 
     /**
