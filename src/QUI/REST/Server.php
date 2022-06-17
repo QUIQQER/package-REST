@@ -389,7 +389,10 @@ class Server
 
         $Engine->assign([
             'openApiSpecificationFile' => \str_replace(VAR_DIR, $fullVarDir, $binFile),
-            'URL_OPT_DIR'              => $fullOptDir
+            'URL_OPT_DIR'              => $fullOptDir,
+            'apiTitle'                 => !empty($specificationJson['info']['title']) ?
+                $specificationJson['info']['title'] :
+                'REST API Documentation'
         ]);
 
         $html = $Engine->fetch($tplDir.'index.html');
