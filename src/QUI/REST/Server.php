@@ -139,8 +139,8 @@ class Server
             } else {
                 QUI\System\Log::addError(
                     $Exception->getMessage()
-                    ."\n\n"
-                    .$Exception->getTraceAsString(),
+                    . "\n\n"
+                    . $Exception->getTraceAsString(),
                     [
                         'package' => 'quiqqer/rest'
                     ],
@@ -177,7 +177,7 @@ class Server
      */
     public function getAddress()
     {
-        return $this->config['baseHost'].$this->config['basePath'];
+        return $this->config['baseHost'] . $this->config['basePath'];
     }
 
     /**
@@ -216,7 +216,7 @@ class Server
         // Hello World
         $this->Slim->get('/hello/{name}', function (RequestInterface $Request, ResponseInterface $Response, $args) {
             /** @var Response $Response */
-            return $Response->write("Hello ".$args['name']);
+            return $Response->write("Hello " . $args['name']);
         });
 
         $this->Slim->get(
@@ -264,11 +264,11 @@ class Server
                 'docsJson' => false
             ];
 
-            $baseUrlDocs = $this->getBasePathWithHost().'docs/'.$Provider->getName().'/';
+            $baseUrlDocs = $this->getBasePathWithHost() . 'docs/' . $Provider->getName() . '/';
 
             if (!empty($specificationFile)) {
-                $entry['docsHtml'] = $baseUrlDocs.'html';
-                $entry['docsJson'] = $baseUrlDocs.'json';
+                $entry['docsHtml'] = $baseUrlDocs . 'html';
+                $entry['docsJson'] = $baseUrlDocs . 'json';
             }
 
             $entries[] = $entry;
@@ -287,8 +287,8 @@ class Server
         ]);
 
         $Package = QUI::getPackage('quiqqer/rest');
-        $tplDir  = $Package->getDir().'bin/template/';
-        $html    = $Engine->fetch($tplDir.'DocsList.html');
+        $tplDir  = $Package->getDir() . 'bin/template/';
+        $html    = $Engine->fetch($tplDir . 'DocsList.html');
 
         return $Response
             ->write($html)
@@ -322,7 +322,7 @@ class Server
 
         /** @var Response $Response */
         if (empty($providers[$apiName])) {
-            return $Response->write("No OpenApi docs available for API \"".$apiName."\".");
+            return $Response->write("No OpenApi docs available for API \"" . $apiName . "\".");
         }
 
         $Provider              = $providers[$apiName];
@@ -331,7 +331,7 @@ class Server
         if (!$openApiDefinitionFile ||
             !\file_exists($openApiDefinitionFile) ||
             !\is_readable($openApiDefinitionFile)) {
-            return $Response->write("No OpenApi docs available for API \"".$apiName."\".");
+            return $Response->write("No OpenApi docs available for API \"" . $apiName . "\".");
         }
 
         $specificationArray = \json_decode(\file_get_contents($openApiDefinitionFile), true);
@@ -374,18 +374,18 @@ class Server
             return $Response->withStatus(500);
         }
 
-        $tplDir = $Package->getDir().'bin/template/';
-        $varDir = $Package->getVarDir().'bin/';
+        $tplDir = $Package->getDir() . 'bin/template/';
+        $varDir = $Package->getVarDir() . 'bin/';
 
         QUI\Utils\System\File::mkdir($varDir);
 
         // Copy file content to bin dir
-        $binFile = $varDir.'specification.json';
+        $binFile = $varDir . 'specification.json';
 
         \file_put_contents($binFile, $specificationJson);
 
-        $fullOptDir = self::getBaseHost().URL_OPT_DIR;
-        $fullVarDir = self::getBaseHost().URL_VAR_DIR;
+        $fullOptDir = self::getBaseHost() . URL_OPT_DIR;
+        $fullVarDir = self::getBaseHost() . URL_VAR_DIR;
 
         $Engine->assign([
             'openApiSpecificationFile' => \str_replace(VAR_DIR, $fullVarDir, $binFile),
@@ -395,7 +395,7 @@ class Server
                 'REST API Documentation'
         ]);
 
-        $html = $Engine->fetch($tplDir.'index.html');
+        $html = $Engine->fetch($tplDir . 'index.html');
 
         return $Response
             ->write($html)
@@ -463,7 +463,7 @@ class Server
      */
     public function getBasePath(): string
     {
-        return \rtrim($this->config['basePath'], '/').'/';
+        return \rtrim($this->config['basePath'], '/') . '/';
     }
 
     /**
@@ -485,7 +485,7 @@ class Server
      */
     public function getBasePathWithHost(): string
     {
-        return $this->getBaseHost().$this->getBasePath();
+        return $this->getBaseHost() . $this->getBasePath();
     }
 
     /**
@@ -563,7 +563,7 @@ class Server
     protected function help(RequestInterface $Request, ResponseInterface $Response, $args)
     {
         $patterns = [];
-        $routes   = $this->Slim->getContainer()->get('router')->getRoutes();
+        $routes   = $this->getSlim()->getRouteCollector()->getRoutes();
 
         foreach ($routes as $Route) {
             if ($Route->getPattern() != '/') {
@@ -590,7 +590,7 @@ class Server
 ';
 
         foreach ($patterns as $pattern) {
-            $output .= ' - '.$pattern."\n\n";
+            $output .= ' - ' . $pattern . "\n\n";
         }
 
         $output .= '</pre>';
