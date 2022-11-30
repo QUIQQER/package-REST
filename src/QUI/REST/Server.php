@@ -343,6 +343,25 @@ class Server
             ]
         ];
 
+        // Add "Accept-Language" request-header-parameter to all paths and their methods
+        if (isset($specificationArray['paths'])) {
+            $acceptLanguageHeaderParameterSchema = [
+                'in'          => 'header',
+                'name'        => 'Accept-Language',
+                'description' => 'Language to use for the response in RFC 5646 format. QUIQQER may ignore subtags.',
+                'schema'      => [
+                    'type'    => 'string',
+                    'example' => 'de-DE'
+                ]
+            ];
+
+            foreach ($specificationArray['paths'] as &$methods) {
+                foreach ($methods as &$method) {
+                    $method['parameters'][] = $acceptLanguageHeaderParameterSchema;
+                }
+            }
+        }
+
         try {
             QUI::getEvents()->fireEvent(
                 'quiqqerRestLoadOpenApiSpecification',

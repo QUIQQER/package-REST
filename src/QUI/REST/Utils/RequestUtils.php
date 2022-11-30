@@ -3,6 +3,7 @@
 namespace QUI\REST\Utils;
 
 use Psr\Http\Message\ServerRequestInterface;
+use QUI;
 use QUI\Utils\Security\Orthos;
 
 class RequestUtils
@@ -76,5 +77,18 @@ class RequestUtils
     {
         $str = json_decode($str, true);
         return json_last_error() === JSON_ERROR_NONE && is_array($str);
+    }
+
+    public static function getRequestedLanguage(): ?string
+    {
+        if (!QUI::getRequest()->headers->has('Accept-Language')) {
+            return null;
+        }
+
+        // Header should be conforming RFC-5646 Section 2.1 (e.g. 'en-US')
+        // QUIQQER just uses two character language codes, therefore just the first two characters are used
+        $requestedLanguage = mb_substr(QUI::getRequest()->headers->get('Accept-Language'), 0, 2);
+
+        return $requestedLanguage ?: null;
     }
 }

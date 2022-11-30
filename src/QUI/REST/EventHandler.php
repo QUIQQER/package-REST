@@ -53,6 +53,12 @@ class EventHandler
             return;
         }
 
+        $requestedLanguage = QUI\REST\Utils\RequestUtils::getRequestedLanguage();
+        if ($requestedLanguage) {
+            QUI::getUserBySession()->getLocale()->setCurrent($requestedLanguage);
+            QUI::getLocale()->setCurrent($requestedLanguage);
+        }
+
         $Server = Server::getCurrentInstance();
         $Server->run();
         exit;
