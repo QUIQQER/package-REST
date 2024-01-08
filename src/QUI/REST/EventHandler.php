@@ -7,7 +7,6 @@
 namespace QUI\REST;
 
 use QUI;
-use Slim\App;
 
 /**
  * QUIQQER Event Handling
@@ -24,7 +23,7 @@ class EventHandler
     {
         $Request = QUI::getRequest();
         $Package = QUI::getPackage('quiqqer/rest');
-        $Config  = $Package->getConfig();
+        $Config = $Package->getConfig();
 
         $basePath = $Config->getValue('general', 'basePath');
         $baseHost = $Config->getValue('general', 'baseHost');
@@ -40,14 +39,14 @@ class EventHandler
             $baseHost = rtrim($baseHost, '/');
         }
 
-        $uri  = $Request->getRequestUri();
+        $uri = $Request->getRequestUri();
         $host = $Request->getHost();
 
         if (!empty($baseHost) && $host != $baseHost) {
             return;
         }
 
-        $uri = $uri.'/';
+        $uri = $uri . '/';
 
         if (!empty($basePath) && mb_strpos($uri, $basePath) === false) {
             return;
