@@ -2,10 +2,9 @@
 
 namespace QUI\REST;
 
+use Psr\Http\Message\ResponseInterface as ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
-use Psr\Http\Message\ResponseInterface as ResponseInterface;
-
 use Psr\Log\LoggerInterface;
 use QUI;
 use Slim;
@@ -53,7 +52,7 @@ class Server
     public static function getInstance()
     {
         $Package = QUI::getPackage('quiqqer/rest');
-        $Config  = $Package->getConfig();
+        $Config = $Package->getConfig();
 
         $basePath = $Config->getValue('general', 'basePath');
         $baseHost = $Config->getValue('general', 'baseHost');
@@ -258,8 +257,8 @@ class Server
 
         foreach ($this->getProvidersFromPackages() as $Provider) {
             $specificationFile = $Provider->getOpenApiDefinitionFile();
-            $entry             = [
-                'title'    => $Provider->getTitle(),
+            $entry = [
+                'title' => $Provider->getTitle(),
                 'docsHtml' => false,
                 'docsJson' => false
             ];
@@ -287,8 +286,8 @@ class Server
         ]);
 
         $Package = QUI::getPackage('quiqqer/rest');
-        $tplDir  = $Package->getDir() . 'bin/template/';
-        $html    = $Engine->fetch($tplDir . 'DocsList.html');
+        $tplDir = $Package->getDir() . 'bin/template/';
+        $html = $Engine->fetch($tplDir . 'DocsList.html');
 
         return $Response
             ->write($html)
@@ -317,7 +316,7 @@ class Server
                 $format = 'json';
         }
 
-        $apiName   = $args['api_name'];
+        $apiName = $args['api_name'];
         $providers = $this->getProvidersFromPackages();
 
         /** @var Response $Response */
@@ -325,12 +324,14 @@ class Server
             return $Response->write("No OpenApi docs available for API \"" . $apiName . "\".");
         }
 
-        $Provider              = $providers[$apiName];
+        $Provider = $providers[$apiName];
         $openApiDefinitionFile = $Provider->getOpenApiDefinitionFile();
 
-        if (!$openApiDefinitionFile ||
+        if (
+            !$openApiDefinitionFile ||
             !\file_exists($openApiDefinitionFile) ||
-            !\is_readable($openApiDefinitionFile)) {
+            !\is_readable($openApiDefinitionFile)
+        ) {
             return $Response->write("No OpenApi docs available for API \"" . $apiName . "\".");
         }
 
@@ -342,6 +343,25 @@ class Server
                 'url' => $this->getBasePathWithHost()
             ]
         ];
+
+        // Add "Accept-Language" request-header-parameter to all paths and their methods
+        if (isset($specificationArray['paths'])) {
+            $acceptLanguageHeaderParameterSchema = [
+                'in' => 'header',
+                'name' => 'Accept-Language',
+                'description' => 'Language to use for the response in RFC 5646 format. QUIQQER may ignore subtags.',
+                'schema' => [
+                    'type' => 'string',
+                    'example' => 'de-DE'
+                ]
+            ];
+
+            foreach ($specificationArray['paths'] as &$methods) {
+                foreach ($methods as &$method) {
+                    $method['parameters'][] = $acceptLanguageHeaderParameterSchema;
+                }
+            }
+        }
 
         try {
             QUI::getEvents()->fireEvent(
@@ -365,7 +385,7 @@ class Server
 
         // HTML Output
         try {
-            $Engine  = QUI::getTemplateManager()->getEngine();
+            $Engine = QUI::getTemplateManager()->getEngine();
             $Package = QUI::getPackage('quiqqer/rest');
         } catch (\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
@@ -389,8 +409,8 @@ class Server
 
         $Engine->assign([
             'openApiSpecificationFile' => \str_replace(VAR_DIR, $fullVarDir, $binFile),
-            'URL_OPT_DIR'              => $fullOptDir,
-            'apiTitle'                 => !empty($specificationArray['info']['title']) ?
+            'URL_OPT_DIR' => $fullOptDir,
+            'apiTitle' => !empty($specificationArray['info']['title']) ?
                 $specificationArray['info']['title'] :
                 'REST API Documentation'
         ]);
@@ -434,7 +454,7 @@ class Server
         $this->registerBasePaths();
         $this->registerPackageProviders();
 
-        $routes      = $this->getSlim()->getRouteCollector()->getRoutes();
+        $routes = $this->getSlim()->getRouteCollector()->getRoutes();
         $entryPoints = [];
 
         foreach ($routes as $Route) {
@@ -496,7 +516,7 @@ class Server
     protected function getProvidersFromPackages()
     {
         $packages = QUI::getPackageManager()->getInstalled();
-        $result   = [];
+        $result = [];
 
         try {
             $providerList = QUI\Cache\Manager::get('quiqqer/rest/providerList');
@@ -563,7 +583,7 @@ class Server
     protected function help(RequestInterface $Request, ResponseInterface $Response, $args)
     {
         $patterns = [];
-        $routes   = $this->getSlim()->getRouteCollector()->getRoutes();
+        $routes = $this->getSlim()->getRouteCollector()->getRoutes();
 
         foreach ($routes as $Route) {
             if ($Route->getPattern() != '/') {
