@@ -114,8 +114,8 @@ class Server
             new ResponseFactory()
         );
 
-//        $this->Slim = Slim\Factory\AppFactory::create();
-        $this->Slim->setBasePath(\rtrim($this->config['basePath'], '/'));
+        $basePath = '/' . \trim($this->config['basePath'], '/');
+        $this->Slim->setBasePath($basePath);
 
         // Define Custom Error Handler
         $customErrorHandler = function (
