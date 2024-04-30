@@ -9,7 +9,6 @@ use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Log\LoggerInterface;
 use QUI;
 use Slim;
-
 use Throwable;
 
 use function file_exists;
