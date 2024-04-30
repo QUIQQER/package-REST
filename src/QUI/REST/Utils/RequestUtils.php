@@ -17,7 +17,7 @@ class RequestUtils
      * @param string $key
      * @return false|string - Field data if found, FALSE if not found/set
      */
-    public static function getFieldFromRequest(ServerRequestInterface $Request, $key)
+    public static function getFieldFromRequest(ServerRequestInterface $Request, string $key): bool|string
     {
         $getParams = $Request->getQueryParams();
 
@@ -56,7 +56,7 @@ class RequestUtils
      * @param string $arg - Argument name
      * @return string|false - (sanitized) arg or false if not set/found
      */
-    public static function getArgFromRequest(ServerRequestInterface $Request, $arg)
+    public static function getArgFromRequest(ServerRequestInterface $Request, string $arg): bool|string
     {
         $content = $Request->getAttribute($arg);
 
@@ -73,7 +73,7 @@ class RequestUtils
      * @param string $str
      * @return bool
      */
-    public static function isJson($str)
+    public static function isJson(string $str): bool
     {
         $str = json_decode($str, true);
         return json_last_error() === JSON_ERROR_NONE && is_array($str);
