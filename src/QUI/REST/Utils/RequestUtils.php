@@ -15,9 +15,9 @@ class RequestUtils
      *
      * @param ServerRequestInterface $Request
      * @param string $key
-     * @return false|string - Field data if found, FALSE if not found/set
+     * @return bool|string|array - Field data if found, FALSE if not found/set
      */
-    public static function getFieldFromRequest(ServerRequestInterface $Request, string $key): bool|string
+    public static function getFieldFromRequest(ServerRequestInterface $Request, string $key): bool|string|array
     {
         $getParams = $Request->getQueryParams();
 
