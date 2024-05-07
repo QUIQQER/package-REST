@@ -2,12 +2,26 @@
 
 namespace QUI\REST;
 
+use Exception;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Log\LoggerInterface;
 use QUI;
 use Slim;
+use Throwable;
+
+use function file_exists;
+use function file_get_contents;
+use function file_put_contents;
+use function is_readable;
+use function json_decode;
+use function json_encode;
+use function rtrim;
+use function str_replace;
+use function trim;
+
+use const ARRAY_FILTER_USE_KEY;
 
 /**
  * The Rest Server
@@ -19,7 +33,7 @@ class Server
     /**
      * @var array
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * @var Slim\App
@@ -29,19 +43,19 @@ class Server
     /**
      * @var bool
      */
-    protected $basePathsRegistered = false;
+    protected bool $basePathsRegistered = false;
 
     /**
      * @var bool
      */
-    protected $packageProdiversRegistered = false;
+    protected bool $packageProdiversRegistered = false;
 
     /**
-     * Last instance of this class initiaded by getInstance()
+     * Last instance of this class initialed by getInstance()
      *
-     * @var \QUI\Rest\Server
+     * @var ?Server
      */
-    protected static $currentInstance = null;
+    protected static ?Server $currentInstance = null;
 
     /**
      * Return a server instance with the quiqqer system configuration
@@ -49,7 +63,7 @@ class Server
      * @return Server
      * @throws QUI\Exception
      */
-    public static function getInstance()
+    public static function getInstance(): Server
     {
         $Package = QUI::getPackage('quiqqer/rest');
         $Config = $Package->getConfig();
@@ -79,10 +93,10 @@ class Server
      *
      * If no instance has been initiated -> create a new one
      *
-     * @return \QUI\REST\Server
+     * @return Server
      * @throws QUI\Exception
      */
-    public static function getCurrentInstance()
+    public static function getCurrentInstance(): Server
     {
         if (!is_null(self::$currentInstance)) {
             return self::$currentInstance;
@@ -96,14 +110,10 @@ class Server
      *
      * @param array $config - optional
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         // config
         $this->config = $config;
-
-        if (!is_array($this->config)) {
-            $this->config = [];
-        }
 
         if (!isset($this->config['basePath'])) {
             $this->config['basePath'] = '';
@@ -114,19 +124,19 @@ class Server
             new ResponseFactory()
         );
 
-        $basePath = '/' . \trim($this->config['basePath'], '/');
+        $basePath = '/' . trim($this->config['basePath'], '/');
         $this->Slim->setBasePath($basePath);
 
         // Define Custom Error Handler
         $customErrorHandler = function (
             ServerRequestInterface $Request,
-            \Throwable $Exception,
+            Throwable $Exception,
             bool $displayErrorDetails,
             bool $logErrors,
             bool $logErrorDetails,
             ?LoggerInterface $logger = null
         ) {
-            if ($Exception instanceof \Exception) {
+            if ($Exception instanceof Exception) {
                 QUI\System\Log::writeException(
                     $Exception,
                     QUI\System\Log::LEVEL_ERROR,
@@ -154,7 +164,7 @@ class Server
 
                 $Response = $this->Slim->getResponseFactory()->createResponse(
                     $Exception->getCode(),
-                    \json_encode($result)
+                    json_encode($result)
                 );
 
                 return $Response->withHeader('Content-Type', 'application/json');
@@ -174,7 +184,7 @@ class Server
      *
      * @return string
      */
-    public function getAddress()
+    public function getAddress(): string
     {
         return $this->config['baseHost'] . $this->config['basePath'];
     }
@@ -182,9 +192,9 @@ class Server
     /**
      * Server constructor.
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function run()
+    public function run(): void
     {
         $self = $this;
 
@@ -237,6 +247,7 @@ class Server
      * @param array $args
      *
      * @return ResponseInterface
+     * @throws QUI\Exception
      */
     public function onGetDocsList(
         RequestInterface $Request,
@@ -275,7 +286,7 @@ class Server
 
         if ($format === 'json') {
             return $Response
-                ->write(\json_encode($entries))
+                ->write(json_encode($entries))
                 ->withHeader('Content-Type', 'application/json');
         }
 
@@ -329,13 +340,13 @@ class Server
 
         if (
             !$openApiDefinitionFile ||
-            !\file_exists($openApiDefinitionFile) ||
-            !\is_readable($openApiDefinitionFile)
+            !file_exists($openApiDefinitionFile) ||
+            !is_readable($openApiDefinitionFile)
         ) {
             return $Response->write("No OpenApi docs available for API \"" . $apiName . "\".");
         }
 
-        $specificationArray = \json_decode(\file_get_contents($openApiDefinitionFile), true);
+        $specificationArray = json_decode(file_get_contents($openApiDefinitionFile), true);
 
         // Add servers
         $specificationArray['servers'] = [
@@ -371,11 +382,11 @@ class Server
                     &$specificationArray
                 ]
             );
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
         }
 
-        $specificationJson = \json_encode($specificationArray);
+        $specificationJson = json_encode($specificationArray);
 
         if ($format === 'json') {
             return $Response
@@ -387,7 +398,7 @@ class Server
         try {
             $Engine = QUI::getTemplateManager()->getEngine();
             $Package = QUI::getPackage('quiqqer/rest');
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
             $Response->write('Something went wrong. Please contact an adminstrator.');
@@ -402,13 +413,13 @@ class Server
         // Copy file content to bin dir
         $binFile = $varDir . 'specification.json';
 
-        \file_put_contents($binFile, $specificationJson);
+        file_put_contents($binFile, $specificationJson);
 
         $fullOptDir = self::getBaseHost() . URL_OPT_DIR;
         $fullVarDir = self::getBaseHost() . URL_VAR_DIR;
 
         $Engine->assign([
-            'openApiSpecificationFile' => \str_replace(VAR_DIR, $fullVarDir, $binFile),
+            'openApiSpecificationFile' => str_replace(VAR_DIR, $fullVarDir, $binFile),
             'URL_OPT_DIR' => $fullOptDir,
             'apiTitle' => !empty($specificationArray['info']['title']) ?
                 $specificationArray['info']['title'] :
@@ -427,7 +438,7 @@ class Server
      *
      * @return void
      */
-    public function registerPackageProviders()
+    public function registerPackageProviders(): void
     {
         if ($this->packageProdiversRegistered) {
             return;
@@ -436,7 +447,6 @@ class Server
         // packages provider
         $provider = $this->getProvidersFromPackages();
 
-        /* @var $Provider ProviderInterface */
         foreach ($provider as $Provider) {
             $Provider->register($this);
         }
@@ -445,11 +455,11 @@ class Server
     }
 
     /**
-     * Get all entry points (routes) of all registered REST prodivers
+     * Get all entry points (routes) of all registered REST providers
      *
      * @return array
      */
-    public function getEntryPoints()
+    public function getEntryPoints(): array
     {
         $this->registerBasePaths();
         $this->registerPackageProviders();
@@ -471,7 +481,7 @@ class Server
      *
      * @return Slim\App
      */
-    public function getSlim()
+    public function getSlim(): Slim\App
     {
         return $this->Slim;
     }
@@ -483,7 +493,7 @@ class Server
      */
     public function getBasePath(): string
     {
-        return \rtrim($this->config['basePath'], '/') . '/';
+        return rtrim($this->config['basePath'], '/') . '/';
     }
 
     /**
@@ -497,7 +507,7 @@ class Server
             $baseUrl = QUI::conf('globals', 'host');
         }
 
-        return \rtrim($baseUrl, '/');
+        return rtrim($baseUrl, '/');
     }
 
     /**
@@ -513,14 +523,14 @@ class Server
      *
      * @return ProviderInterface[]
      */
-    protected function getProvidersFromPackages()
+    protected function getProvidersFromPackages(): array
     {
         $packages = QUI::getPackageManager()->getInstalled();
         $result = [];
 
         try {
             $providerList = QUI\Cache\Manager::get('quiqqer/rest/providerList');
-        } catch (QUI\Cache\Exception $Exception) {
+        } catch (QUI\Cache\Exception) {
             $providerList = [];
 
             /* @var $Package QUI\Package\Package */
@@ -535,7 +545,7 @@ class Server
                 $provider = $Package->getProvider();
                 $provider = array_filter($provider, function ($key) {
                     return $key === 'rest';
-                }, \ARRAY_FILTER_USE_KEY);
+                }, ARRAY_FILTER_USE_KEY);
 
                 if (isset($provider['rest'])) {
                     $providerList = array_merge($providerList, $provider['rest']);
@@ -547,7 +557,7 @@ class Server
                     'quiqqer/rest/providerList',
                     $providerList
                 );
-            } catch (\Exception $Exception) {
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
             }
         }
@@ -564,7 +574,7 @@ class Server
                 if ($Provider instanceof ProviderInterface) {
                     $result[$Provider->getName()] = $Provider;
                 }
-            } catch (\Exception $Exception) {
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
         }
@@ -580,7 +590,7 @@ class Server
      * @param $args
      * @return mixed
      */
-    protected function help(RequestInterface $Request, ResponseInterface $Response, $args)
+    protected function help(RequestInterface $Request, ResponseInterface $Response, $args): mixed
     {
         $patterns = [];
         $routes = $this->getSlim()->getRouteCollector()->getRoutes();

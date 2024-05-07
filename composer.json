@@ -1,5 +1,5 @@
 {
-    "name": "quiqqer\/rest",
+    "name": "quiqqer/rest",
     "type": "quiqqer-plugin",
     "description": "Extend QUIQQER with a REST API server. QUIQQER REST allows each package to provide a REST API.",
     "license": "GPL-3.0+",
@@ -7,13 +7,13 @@
         {
             "name": "Henning Leutz",
             "email": "leutz@pcsg.de",
-            "homepage": "https:\/\/www.pcsg.de",
+            "homepage": "https://www.pcsg.de",
             "role": "Developer"
         },
         {
             "name": "Patrick M\u00fcller",
             "email": "p.mueller@pcsg.de",
-            "homepage": "https:\/\/www.pcsg.de",
+            "homepage": "https://www.pcsg.de",
             "role": "Developer"
         }
     ],
@@ -21,15 +21,15 @@
         "email": "support@pcsg.de"
     },
     "require": {
-        "php": "^7.4|^8",
-        "quiqqer\/quiqqer": "^1.1|*@dev",
-        "slim\/slim": "^4",
-        "psr\/http-message": "^1",
+        "php": "^8",
+        "quiqqer/core": "^2",
+        "slim/slim": "^4",
+        "psr/http-message": "^1|^2",
         "http-interop/http-factory-guzzle": "^1"
     },
     "autoload": {
         "psr-4": {
-            "QUI\\REST\\": "src\/QUI\/REST"
+            "QUI\\REST\\": "src/QUI/REST"
         }
     }
 }
