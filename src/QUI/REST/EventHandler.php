@@ -7,6 +7,7 @@
 namespace QUI\REST;
 
 use QUI;
+use QUI\Exception;
 
 /**
  * QUIQQER Event Handling
@@ -18,8 +19,10 @@ class EventHandler
     /**
      * @param QUI\Rewrite $Rewrite
      * @param string $url
+     * @throws Exception
+     * @throws \Exception
      */
-    public static function onRequest(QUI\Rewrite $Rewrite, $url)
+    public static function onRequest(QUI\Rewrite $Rewrite, string $url): void
     {
         $Request = QUI::getRequest();
         $Package = QUI::getPackage('quiqqer/rest');
