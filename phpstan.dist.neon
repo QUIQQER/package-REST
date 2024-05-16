@@ -1,0 +1,16 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 1
+    paths:
+        - src
+    bootstrapFiles:
+        - tests/phpstan-bootstrap.php
+
+    customRulesetUsed: true
+services:
+    -
+        class: \PHPStan\Rules\Properties\TypesAssignedToPropertiesRule
+        tags:
+            - phpstan.rules.rule
