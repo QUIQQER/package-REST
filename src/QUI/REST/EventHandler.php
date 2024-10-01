@@ -56,9 +56,16 @@ class EventHandler
         }
 
         $requestedLanguage = QUI\REST\Utils\RequestUtils::getRequestedLanguage();
-        if ($requestedLanguage) {
+        $availableLanguages = QUI::availableLanguages();
+
+        if ($requestedLanguage && in_array($requestedLanguage, $availableLanguages)) {
             QUI::getUserBySession()->getLocale()->setCurrent($requestedLanguage);
             QUI::getLocale()->setCurrent($requestedLanguage);
+        } else {
+            // set default system language
+            $language = QUI::conf('globals', 'standardLanguage');
+            QUI::getUserBySession()->getLocale()->setCurrent($language);
+            QUI::getLocale()->setCurrent($language);
         }
 
         $Server = Server::getCurrentInstance();
