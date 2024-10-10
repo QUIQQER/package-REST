@@ -9,6 +9,8 @@ namespace QUI\REST;
 use QUI;
 use QUI\Exception;
 
+use function in_array;
+
 /**
  * QUIQQER Event Handling
  *
@@ -69,6 +71,7 @@ class EventHandler
         }
 
         $Server = Server::getCurrentInstance();
+        QUI::getEvents()->fireEvent('restInit', [$Server, $Request]);
         $Server->run();
         exit;
     }
