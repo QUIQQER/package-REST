@@ -9,6 +9,8 @@ namespace QUI\REST;
 use QUI;
 use QUI\Exception;
 
+use function in_array;
+
 /**
  * QUIQQER Event Handling
  *
@@ -56,12 +58,20 @@ class EventHandler
         }
 
         $requestedLanguage = QUI\REST\Utils\RequestUtils::getRequestedLanguage();
-        if ($requestedLanguage) {
+        $availableLanguages = QUI::availableLanguages();
+
+        if ($requestedLanguage && in_array($requestedLanguage, $availableLanguages)) {
             QUI::getUserBySession()->getLocale()->setCurrent($requestedLanguage);
             QUI::getLocale()->setCurrent($requestedLanguage);
+        } else {
+            // set default system language
+            $language = QUI::conf('globals', 'standardLanguage');
+            QUI::getUserBySession()->getLocale()->setCurrent($language);
+            QUI::getLocale()->setCurrent($language);
         }
 
         $Server = Server::getCurrentInstance();
+        QUI::getEvents()->fireEvent('restInit', [$Server, $Request]);
         $Server->run();
         exit;
     }
