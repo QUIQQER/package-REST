@@ -160,7 +160,7 @@ class Server
                 return $Response->withHeader('Content-Type', 'application/json');
             }
 
-            return $this->Slim->getResponseFactory()->createResponse(500);
+            return $this->Slim->getResponseFactory()->createResponse($Exception->getCode());
         };
 
         $ErrorMiddleware = $this->Slim->addErrorMiddleware(true, true, true);
