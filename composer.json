@@ -23,6 +23,7 @@
     "require": {
         "php": "^8",
         "quiqqer/core": "^2",
+        "quiqqer/rest-authentication-implementation": "^1",
         "slim/slim": "^4",
         "psr/http-message": "^1|^2",
         "http-interop/http-factory-guzzle": "^1"
