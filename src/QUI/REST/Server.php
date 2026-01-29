@@ -170,7 +170,13 @@ class Server
                 return $Response->withHeader('Content-Type', 'application/json');
             }
 
-            return $this->Slim->getResponseFactory()->createResponse(500);
+            $code = $Exception->getCode();
+
+            if ($code < 100 || $code > 599) {
+                $code = 500;
+            }
+
+            return $this->Slim->getResponseFactory()->createResponse($code);
         };
 
         $ErrorMiddleware = $this->Slim->addErrorMiddleware(true, true, true);
