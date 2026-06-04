@@ -35,7 +35,7 @@ interface ProviderInterface
      * @param QUI\Locale|null $Locale (optional)
      * @return string
      */
-    public function getTitle(QUI\Locale $Locale = null): string;
+    public function getTitle(?QUI\Locale $Locale = null): string;
 
     /**
      * Get unique internal API name.
