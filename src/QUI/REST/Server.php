@@ -31,14 +31,16 @@ use const ARRAY_FILTER_USE_KEY;
 class Server
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $config = [];
 
     /**
-     * @var Slim\App
+     * @var Slim\App<null>
      */
     protected $Slim;
+
+    protected Slim\Middleware\ErrorMiddleware $SlimErrorMiddleware;
 
     /**
      * @var bool
@@ -65,8 +67,7 @@ class Server
      */
     public static function getInstance(): Server
     {
-        $Package = QUI::getPackage('quiqqer/rest');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $basePath = $Config->getValue('general', 'basePath');
         $baseHost = $Config->getValue('general', 'baseHost');
@@ -108,7 +109,7 @@ class Server
     /**
      * Server constructor.
      *
-     * @param array $config - optional
+     * @param array<string, mixed> $config - optional
      */
     public function __construct(array $config = [])
     {
@@ -117,6 +118,10 @@ class Server
 
         if (!isset($this->config['basePath'])) {
             $this->config['basePath'] = '';
+        }
+
+        if (!isset($this->config['baseHost'])) {
+            $this->config['baseHost'] = '';
         }
 
         // slim
@@ -162,10 +167,15 @@ class Server
                     'error' => $Exception->toArray()
                 ];
 
-                $Response = $this->Slim->getResponseFactory()->createResponse(
-                    $Exception->getCode(),
-                    json_encode($result)
-                );
+                $code = $Exception->getCode();
+
+                if ($code < 100 || $code > 599) {
+                    $code = 500;
+                }
+
+                $responseBody = json_encode($result);
+                $Response = $this->Slim->getResponseFactory()->createResponse($code);
+                $Response->getBody()->write($responseBody === false ? '{}' : $responseBody);
 
                 return $Response->withHeader('Content-Type', 'application/json');
             }
@@ -179,8 +189,14 @@ class Server
             return $this->Slim->getResponseFactory()->createResponse($code);
         };
 
-        $ErrorMiddleware = $this->Slim->addErrorMiddleware(true, true, true);
-        $ErrorMiddleware->setDefaultErrorHandler($customErrorHandler);
+        $this->SlimErrorMiddleware = $this->Slim->addErrorMiddleware(
+            true,
+            true,
+            true
+        );
+        $this->SlimErrorMiddleware->setDefaultErrorHandler(
+            $customErrorHandler
+        );
 
         $this->Slim->addBodyParsingMiddleware();
     }
@@ -250,7 +266,7 @@ class Server
     /**
      * @param RequestInterface $Request
      * @param ResponseInterface $Response
-     * @param array $args
+     * @param array<string, mixed> $args
      *
      * @return ResponseInterface
      * @throws QUI\Exception
@@ -314,9 +330,11 @@ class Server
     /**
      * @param RequestInterface $Request
      * @param ResponseInterface $Response
-     * @param array $args
+     * @param array<string, mixed> $args
      *
      * @return ResponseInterface
+     * @throws QUI\Exception
+     * @throws \JsonException
      */
     public function onGetDocsApi(
         RequestInterface $Request,
@@ -352,7 +370,21 @@ class Server
             return $Response->write("No OpenApi docs available for API \"" . $apiName . "\".");
         }
 
-        $specificationArray = json_decode(file_get_contents($openApiDefinitionFile), true);
+        $specificationJson = file_get_contents($openApiDefinitionFile);
+
+        if ($specificationJson === false) {
+            throw new QUI\Exception(
+                'Could not read OpenAPI definition file.',
+                500
+            );
+        }
+
+        $specificationArray = json_decode(
+            $specificationJson,
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
 
         // Add servers
         $specificationArray['servers'] = [
@@ -392,7 +424,10 @@ class Server
             QUI\System\Log::writeException($Exception);
         }
 
-        $specificationJson = json_encode($specificationArray);
+        $specificationJson = json_encode(
+            $specificationArray,
+            JSON_THROW_ON_ERROR
+        );
 
         if ($format === 'json') {
             return $Response
@@ -463,7 +498,7 @@ class Server
     /**
      * Get all entry points (routes) of all registered REST providers
      *
-     * @return array
+     * @return list<string>
      */
     public function getEntryPoints(): array
     {
@@ -485,11 +520,19 @@ class Server
     /**
      * Return the Slim App Object
      *
-     * @return Slim\App
+     * @return Slim\App<null>
      */
     public function getSlim(): Slim\App
     {
         return $this->Slim;
+    }
+
+    /**
+     * Return the Slim error middleware.
+     */
+    public function getSlimErrorMiddleware(): Slim\Middleware\ErrorMiddleware
+    {
+        return $this->SlimErrorMiddleware;
     }
 
     /**
@@ -593,11 +636,14 @@ class Server
      *
      * @param RequestInterface $Request
      * @param ResponseInterface $Response
-     * @param $args
+     * @param array<string, mixed> $args
      * @return mixed
      */
-    protected function help(RequestInterface $Request, ResponseInterface $Response, $args): mixed
-    {
+    protected function help(
+        RequestInterface $Request,
+        ResponseInterface $Response,
+        array $args
+    ): mixed {
         $patterns = [];
         $routes = $this->getSlim()->getRouteCollector()->getRoutes();
 

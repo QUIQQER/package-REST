@@ -15,38 +15,36 @@ class RequestUtils
      *
      * @param ServerRequestInterface $Request
      * @param string $key
-     * @return bool|string|array - Field data if found, FALSE if not found/set
+     * @return mixed - Field data if found, null if not found
      */
-    public static function getFieldFromRequest(ServerRequestInterface $Request, string $key): bool|string|array
+    public static function getFieldFromRequest(ServerRequestInterface $Request, string $key): mixed
     {
         $getParams = $Request->getQueryParams();
 
-        if (!empty($getParams[$key])) {
+        if (array_key_exists($key, $getParams)) {
             return $getParams[$key];
         }
 
         $postParams = $Request->getParsedBody();
 
-        if (!empty($postParams[$key])) {
+        if (is_array($postParams) && array_key_exists($key, $postParams)) {
             return $postParams[$key];
+        }
+
+        if (is_object($postParams) && property_exists($postParams, $key)) {
+            return $postParams->{$key};
         }
 
         $RequestBody = $Request->getBody();
         $RequestBody->rewind();
 
-        $requestBody = $RequestBody->getContents();
+        $requestBody = json_decode($RequestBody->getContents(), true);
 
-        if (!self::isJson($requestBody)) {
-            return false;
-        }
-
-        $requestBody = json_decode($requestBody, true);
-
-        if (!empty($requestBody[$key])) {
+        if (is_array($requestBody) && array_key_exists($key, $requestBody)) {
             return $requestBody[$key];
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -60,7 +58,7 @@ class RequestUtils
     {
         $content = $Request->getAttribute($arg);
 
-        if (empty($content)) {
+        if ($content === null || $content === '') {
             return false;
         }
 
@@ -87,7 +85,13 @@ class RequestUtils
 
         // Header should be conforming RFC-5646 Section 2.1 (e.g. 'en-US')
         // QUIQQER just uses two character language codes, therefore just the first two characters are used
-        $requestedLanguage = mb_substr(QUI::getRequest()->headers->get('Accept-Language'), 0, 2);
+        $requestedLanguage = QUI::getRequest()->headers->get('Accept-Language');
+
+        if ($requestedLanguage === null) {
+            return null;
+        }
+
+        $requestedLanguage = mb_substr($requestedLanguage, 0, 2);
 
         return $requestedLanguage ?: null;
     }

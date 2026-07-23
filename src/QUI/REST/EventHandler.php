@@ -27,8 +27,7 @@ class EventHandler
     public static function onRequest(QUI\Rewrite $Rewrite, string $url): void
     {
         $Request = QUI::getRequest();
-        $Package = QUI::getPackage('quiqqer/rest');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $basePath = $Config->getValue('general', 'basePath');
         $baseHost = $Config->getValue('general', 'baseHost');
