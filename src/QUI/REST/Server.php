@@ -36,7 +36,7 @@ class Server
     protected array $config = [];
 
     /**
-     * @var Slim\App
+     * @var Slim\App<null>
      */
     protected $Slim;
 
@@ -512,7 +512,7 @@ class Server
     /**
      * Return the Slim App Object
      *
-     * @return Slim\App
+     * @return Slim\App<null>
      */
     public function getSlim(): Slim\App
     {
