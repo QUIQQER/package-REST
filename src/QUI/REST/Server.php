@@ -325,6 +325,8 @@ class Server
      * @param array<string, mixed> $args
      *
      * @return ResponseInterface
+     * @throws QUI\Exception
+     * @throws \JsonException
      */
     public function onGetDocsApi(
         RequestInterface $Request,
@@ -360,7 +362,16 @@ class Server
             return $Response->write("No OpenApi docs available for API \"" . $apiName . "\".");
         }
 
-        $specificationArray = json_decode(file_get_contents($openApiDefinitionFile), true);
+        $specificationJson = file_get_contents($openApiDefinitionFile);
+
+        if ($specificationJson === false) {
+            throw new QUI\Exception(
+                'Could not read OpenAPI definition file.',
+                500
+            );
+        }
+
+        $specificationArray = json_decode($specificationJson, true);
 
         // Add servers
         $specificationArray['servers'] = [
@@ -400,7 +411,10 @@ class Server
             QUI\System\Log::writeException($Exception);
         }
 
-        $specificationJson = json_encode($specificationArray);
+        $specificationJson = json_encode(
+            $specificationArray,
+            JSON_THROW_ON_ERROR
+        );
 
         if ($format === 'json') {
             return $Response
@@ -601,11 +615,14 @@ class Server
      *
      * @param RequestInterface $Request
      * @param ResponseInterface $Response
-     * @param $args
+     * @param array<string, mixed> $args
      * @return mixed
      */
-    protected function help(RequestInterface $Request, ResponseInterface $Response, $args): mixed
-    {
+    protected function help(
+        RequestInterface $Request,
+        ResponseInterface $Response,
+        array $args
+    ): mixed {
         $patterns = [];
         $routes = $this->getSlim()->getRouteCollector()->getRoutes();
 

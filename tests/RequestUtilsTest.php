@@ -132,6 +132,9 @@ class RequestUtilsTest extends TestCase
             $Request->headers->remove('Accept-Language');
             self::assertNull(RequestUtils::getRequestedLanguage());
 
+            $Request->headers->set('Accept-Language', '');
+            self::assertNull(RequestUtils::getRequestedLanguage());
+
             $Request->headers->set('Accept-Language', 'de-DE,de;q=0.9');
             self::assertSame('de', RequestUtils::getRequestedLanguage());
         } finally {

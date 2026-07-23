@@ -85,7 +85,13 @@ class RequestUtils
 
         // Header should be conforming RFC-5646 Section 2.1 (e.g. 'en-US')
         // QUIQQER just uses two character language codes, therefore just the first two characters are used
-        $requestedLanguage = mb_substr(QUI::getRequest()->headers->get('Accept-Language'), 0, 2);
+        $requestedLanguage = QUI::getRequest()->headers->get('Accept-Language');
+
+        if ($requestedLanguage === null) {
+            return null;
+        }
+
+        $requestedLanguage = mb_substr($requestedLanguage, 0, 2);
 
         return $requestedLanguage ?: null;
     }
