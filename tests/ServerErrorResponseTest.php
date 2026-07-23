@@ -6,6 +6,7 @@ use Error;
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use QUI;
+use QUI\REST\Response;
 use QUI\REST\Server;
 use RuntimeException;
 
@@ -81,5 +82,26 @@ class ServerErrorResponseTest extends TestCase
 
         self::assertSame(500, $Response->getStatusCode());
         self::assertSame('', (string)$Response->getBody());
+    }
+
+    public function testCustomExceptionHandlerCanBeRegistered(): void
+    {
+        $Server = new Server(['basePath' => '/api']);
+        $Server->getSlimErrorMiddleware()->setErrorHandler(
+            RuntimeException::class,
+            static function (): Response {
+                return (new Response(409))->write('Custom error response');
+            }
+        );
+        $Server->getSlim()->get('/failing-route', static function (): void {
+            throw new RuntimeException('Expected test exception');
+        });
+
+        $Response = $Server->getSlim()->handle(
+            new ServerRequest('GET', '/api/failing-route')
+        );
+
+        self::assertSame(409, $Response->getStatusCode());
+        self::assertSame('Custom error response', (string)$Response->getBody());
     }
 }

@@ -40,6 +40,8 @@ class Server
      */
     protected $Slim;
 
+    protected Slim\Middleware\ErrorMiddleware $SlimErrorMiddleware;
+
     /**
      * @var bool
      */
@@ -187,8 +189,14 @@ class Server
             return $this->Slim->getResponseFactory()->createResponse($code);
         };
 
-        $ErrorMiddleware = $this->Slim->addErrorMiddleware(true, true, true);
-        $ErrorMiddleware->setDefaultErrorHandler($customErrorHandler);
+        $this->SlimErrorMiddleware = $this->Slim->addErrorMiddleware(
+            true,
+            true,
+            true
+        );
+        $this->SlimErrorMiddleware->setDefaultErrorHandler(
+            $customErrorHandler
+        );
 
         $this->Slim->addBodyParsingMiddleware();
     }
@@ -517,6 +525,14 @@ class Server
     public function getSlim(): Slim\App
     {
         return $this->Slim;
+    }
+
+    /**
+     * Return the Slim error middleware.
+     */
+    public function getSlimErrorMiddleware(): Slim\Middleware\ErrorMiddleware
+    {
+        return $this->SlimErrorMiddleware;
     }
 
     /**
