@@ -73,4 +73,4 @@ We will transfer your message to the responsible developers.
 
 License
 -------
-GPL-3.0+
+GPL-3.0-or-later

@@ -1,37 +1,44 @@
 {
     "name": "quiqqer/rest",
-    "type": "quiqqer-plugin",
+    "type": "quiqqer-module",
     "description": "Extend QUIQQER with a REST API server. QUIQQER REST allows each package to provide a REST API.",
-    "license": "GPL-3.0+",
+    "homepage": "https://www.quiqqer.com",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
-            "name": "Henning Leutz",
-            "email": "leutz@pcsg.de",
-            "homepage": "https://www.pcsg.de",
-            "role": "Developer"
-        },
-        {
-            "name": "Patrick Müller",
-            "email": "p.mueller@pcsg.de",
-            "homepage": "https://www.pcsg.de",
-            "role": "Developer"
+            "name": "PCSG - Computer & Internet Service OHG",
+            "email": "info@quiqqer.com",
+            "homepage": "https://www.quiqqer.com",
+            "role": "Maintainer"
         }
     ],
     "support": {
-        "email": "support@pcsg.de"
+        "email": "support@pcsg.de",
+        "issues": "https://dev.quiqqer.com/quiqqer/rest/-/issues",
+        "source": "https://dev.quiqqer.com/quiqqer/rest"
     },
     "require": {
-        "php": "^8",
+        "php": "^8.2",
+        "guzzlehttp/psr7": "^2",
+        "http-interop/http-factory-guzzle": "^1",
+        "psr/http-message": "^1|^2",
+        "psr/log": "^1|^2|^3",
         "quiqqer/core": "^2",
         "quiqqer/rest-authentication-implementation": "^1",
-        "slim/slim": "^4",
-        "psr/http-message": "^1|^2",
-        "http-interop/http-factory-guzzle": "^1"
+        "slim/slim": "^4"
     },
     "autoload": {
         "psr-4": {
             "QUI\\REST\\": "src/QUI/REST"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "QUI\\REST\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
     },
     "scripts": {
         "test": [
@@ -41,11 +48,13 @@
         "dev:phpunit": "./tools/phpunit",
         "dev:lint": [
             "@dev:lint:phpstan",
-            "@dev:lint:style"
+            "@dev:lint:style",
+            "@dev:lint:dependencies"
         ],
         "dev:lint:phpstan": "./tools/phpstan",
         "dev:lint:style": "./tools/phpcs",
         "dev:lint:style:fix": "./tools/phpcbf",
+        "dev:lint:dependencies": "./tools/composer-require-checker check composer.json",
         "dev:init": [
             "@dev:init:check-requirements",
             "@dev:init:tools",
@@ -70,6 +79,7 @@
         "dev:lint:phpstan": "Run PHPStan",
         "dev:lint:style": "Run code style check (PHP_CodeSniffer)",
         "dev:lint:style:fix": "Try to fix code style errors automatically",
+        "dev:lint:dependencies": "Check that all used symbols have declared Composer dependencies",
         "dev:init": "Initialize the developer tooling (tools and git hooks)",
         "dev:init:check-requirements": "Check if the necessary requirements are met",
         "dev:init:tools": "Install all developer tools (requires PHIVE)",
