@@ -4,6 +4,7 @@ namespace QUI\REST\Tests;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use QUI;
 use QUI\REST\Utils\RequestUtils;
 
 class RequestUtilsTest extends TestCase
@@ -103,5 +104,42 @@ class RequestUtilsTest extends TestCase
             '0',
             RequestUtils::getArgFromRequest($Request, 'resourceId')
         );
+    }
+
+    public function testMissingPathArgumentReturnsFalse(): void
+    {
+        $Request = new ServerRequest('GET', '/');
+
+        self::assertFalse(
+            RequestUtils::getArgFromRequest($Request, 'resourceId')
+        );
+    }
+
+    public function testJsonDetectionRequiresAnArrayOrObject(): void
+    {
+        self::assertTrue(RequestUtils::isJson('{"value":1}'));
+        self::assertTrue(RequestUtils::isJson('[1,2,3]'));
+        self::assertFalse(RequestUtils::isJson('"value"'));
+        self::assertFalse(RequestUtils::isJson('invalid JSON'));
+    }
+
+    public function testRequestedLanguageUsesFirstLanguageSubtag(): void
+    {
+        $Request = QUI::getRequest();
+        $previousHeader = $Request->headers->get('Accept-Language');
+
+        try {
+            $Request->headers->remove('Accept-Language');
+            self::assertNull(RequestUtils::getRequestedLanguage());
+
+            $Request->headers->set('Accept-Language', 'de-DE,de;q=0.9');
+            self::assertSame('de', RequestUtils::getRequestedLanguage());
+        } finally {
+            if ($previousHeader === null) {
+                $Request->headers->remove('Accept-Language');
+            } else {
+                $Request->headers->set('Accept-Language', $previousHeader);
+            }
+        }
     }
 }
