@@ -93,4 +93,15 @@ class RequestUtilsTest extends TestCase
             RequestUtils::getFieldFromRequest($Request, 'field')
         );
     }
+
+    public function testZeroPathArgumentIsPreserved(): void
+    {
+        $Request = (new ServerRequest('GET', '/resource/0'))
+            ->withAttribute('resourceId', '0');
+
+        self::assertSame(
+            '0',
+            RequestUtils::getArgFromRequest($Request, 'resourceId')
+        );
+    }
 }

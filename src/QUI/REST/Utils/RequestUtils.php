@@ -58,7 +58,7 @@ class RequestUtils
     {
         $content = $Request->getAttribute($arg);
 
-        if (empty($content)) {
+        if ($content === null || $content === '') {
             return false;
         }
 
