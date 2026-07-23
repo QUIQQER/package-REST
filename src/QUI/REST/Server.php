@@ -162,10 +162,15 @@ class Server
                     'error' => $Exception->toArray()
                 ];
 
-                $Response = $this->Slim->getResponseFactory()->createResponse(
-                    $Exception->getCode(),
-                    json_encode($result)
-                );
+                $code = $Exception->getCode();
+
+                if ($code < 100 || $code > 599) {
+                    $code = 500;
+                }
+
+                $responseBody = json_encode($result);
+                $Response = $this->Slim->getResponseFactory()->createResponse($code);
+                $Response->getBody()->write($responseBody === false ? '{}' : $responseBody);
 
                 return $Response->withHeader('Content-Type', 'application/json');
             }
