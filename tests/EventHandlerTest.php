@@ -5,13 +5,13 @@ namespace QUI\REST\Tests;
 use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\REST\EventHandler;
+use QUI\REST\Settings;
 
 class EventHandlerTest extends TestCase
 {
     public function testRequestWithDifferentConfiguredHostIsIgnored(): void
     {
-        $Config = QUI::getPackage('quiqqer/rest')->getConfig();
-        self::assertNotNull($Config);
+        $Config = Settings::getConfig();
         $general = $Config->getSection('general');
 
         try {
@@ -38,8 +38,7 @@ class EventHandlerTest extends TestCase
 
     public function testRequestOutsideConfiguredBasePathIsIgnored(): void
     {
-        $Config = QUI::getPackage('quiqqer/rest')->getConfig();
-        self::assertNotNull($Config);
+        $Config = Settings::getConfig();
         $general = $Config->getSection('general');
 
         try {

@@ -65,8 +65,7 @@ class Server
      */
     public static function getInstance(): Server
     {
-        $Package = QUI::getPackage('quiqqer/rest');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $basePath = $Config->getValue('general', 'basePath');
         $baseHost = $Config->getValue('general', 'baseHost');
