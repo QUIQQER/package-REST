@@ -31,7 +31,7 @@ use const ARRAY_FILTER_USE_KEY;
 class Server
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $config = [];
 
@@ -108,7 +108,7 @@ class Server
     /**
      * Server constructor.
      *
-     * @param array $config - optional
+     * @param array<string, mixed> $config - optional
      */
     public function __construct(array $config = [])
     {
@@ -259,7 +259,7 @@ class Server
     /**
      * @param RequestInterface $Request
      * @param ResponseInterface $Response
-     * @param array $args
+     * @param array<string, mixed> $args
      *
      * @return ResponseInterface
      * @throws QUI\Exception
@@ -323,7 +323,7 @@ class Server
     /**
      * @param RequestInterface $Request
      * @param ResponseInterface $Response
-     * @param array $args
+     * @param array<string, mixed> $args
      *
      * @return ResponseInterface
      */
@@ -472,7 +472,7 @@ class Server
     /**
      * Get all entry points (routes) of all registered REST providers
      *
-     * @return array
+     * @return list<string>
      */
     public function getEntryPoints(): array
     {
