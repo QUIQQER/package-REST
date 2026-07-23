@@ -8,6 +8,8 @@ if (!defined('QUIQQER_AJAX')) {
     define('QUIQQER_AJAX', true);
 }
 
+putenv('QUIQQER_OTHER_AUTOLOADERS=KEEP');
+
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/Fixtures/DocumentationTestProvider.php';
 require_once __DIR__ . '/Fixtures/RoutingTestProvider.php';
