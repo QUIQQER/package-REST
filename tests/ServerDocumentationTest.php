@@ -287,10 +287,37 @@ class ServerDocumentationTest extends TestCase
         );
     }
 
+    public function testInvalidOpenApiJsonReturnsInternalServerError(): void
+    {
+        $definitionFile = $this->createRawDefinitionFile('{invalid JSON');
+        $Server = new RoutingTestServer([
+            new DocumentationTestProvider(
+                'Invalid',
+                'Invalid API',
+                $definitionFile
+            )
+        ]);
+        $Server->registerBasePaths();
+
+        $Response = $Server->getSlim()->handle(
+            new ServerRequest('GET', '/api/docs/Invalid/json')
+        );
+
+        self::assertSame(500, $Response->getStatusCode());
+        self::assertSame('', (string)$Response->getBody());
+    }
+
     /**
      * @param array<string, mixed> $definition
      */
     private function createDefinitionFile(array $definition): string
+    {
+        return $this->createRawDefinitionFile(
+            json_encode($definition, JSON_THROW_ON_ERROR)
+        );
+    }
+
+    private function createRawDefinitionFile(string $contents): string
     {
         $file = tempnam(sys_get_temp_dir(), 'quiqqer-rest-openapi-');
 
@@ -298,8 +325,7 @@ class ServerDocumentationTest extends TestCase
             throw new RuntimeException('Could not create temporary OpenAPI definition file.');
         }
 
-        $json = json_encode($definition, JSON_THROW_ON_ERROR);
-        file_put_contents($file, $json);
+        file_put_contents($file, $contents);
         $this->temporaryFiles[] = $file;
 
         return $file;

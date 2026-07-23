@@ -371,7 +371,12 @@ class Server
             );
         }
 
-        $specificationArray = json_decode($specificationJson, true);
+        $specificationArray = json_decode(
+            $specificationJson,
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
 
         // Add servers
         $specificationArray['servers'] = [
