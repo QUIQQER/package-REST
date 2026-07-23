@@ -119,6 +119,10 @@ class Server
             $this->config['basePath'] = '';
         }
 
+        if (!isset($this->config['baseHost'])) {
+            $this->config['baseHost'] = '';
+        }
+
         // slim
         $this->Slim = new Slim\App(
             new ResponseFactory()
