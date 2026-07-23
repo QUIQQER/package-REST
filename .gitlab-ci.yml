@@ -6,8 +6,23 @@ include:
       php-84: true
       php-85: true
 
-phpstan:
+.prepare-rest-dependencies:
   before_script:
     - cd /var/www/html
     - ./console composer require quiqqer/rest-dummy-authentication
     - cd -
+
+phpstan:
+  extends: .prepare-rest-dependencies
+
+phpunit-php8.2:
+  extends: .prepare-rest-dependencies
+
+phpunit-php8.3:
+  extends: .prepare-rest-dependencies
+
+phpunit-php8.4:
+  extends: .prepare-rest-dependencies
+
+phpunit-php8.5:
+  extends: .prepare-rest-dependencies
