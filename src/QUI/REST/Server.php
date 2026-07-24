@@ -13,12 +13,11 @@ use Throwable;
 
 use function file_exists;
 use function file_get_contents;
-use function file_put_contents;
 use function is_readable;
 use function json_decode;
 use function json_encode;
+use function rawurlencode;
 use function rtrim;
-use function str_replace;
 use function trim;
 
 use const ARRAY_FILTER_USE_KEY;
@@ -389,7 +388,7 @@ class Server
         // Add servers
         $specificationArray['servers'] = [
             [
-                'url' => $this->getBasePathWithHost()
+                'url' => $this->getBasePath()
             ]
         ];
 
@@ -447,21 +446,13 @@ class Server
         }
 
         $tplDir = $Package->getDir() . 'bin/template/';
-        $varDir = $Package->getVarDir() . 'bin/';
-
-        QUI\Utils\System\File::mkdir($varDir);
-
-        // Copy file content to bin dir
-        $binFile = $varDir . 'specification.json';
-
-        file_put_contents($binFile, $specificationJson);
-
-        $fullOptDir = self::getBaseHost() . URL_OPT_DIR;
-        $fullVarDir = self::getBaseHost() . URL_VAR_DIR;
 
         $Engine->assign([
-            'openApiSpecificationFile' => str_replace(VAR_DIR, $fullVarDir, $binFile),
-            'URL_OPT_DIR' => $fullOptDir,
+            'openApiSpecificationFile' => $this->getBasePath()
+                . 'docs/'
+                . rawurlencode($apiName)
+                . '/json',
+            'URL_OPT_DIR' => URL_OPT_DIR,
             'apiTitle' => !empty($specificationArray['info']['title']) ?
                 $specificationArray['info']['title'] :
                 'REST API Documentation'
@@ -542,7 +533,7 @@ class Server
      */
     public function getBasePath(): string
     {
-        return rtrim($this->config['basePath'], '/') . '/';
+        return rtrim('/' . trim($this->config['basePath'], '/'), '/') . '/';
     }
 
     /**
