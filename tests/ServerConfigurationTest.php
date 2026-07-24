@@ -33,4 +33,18 @@ class ServerConfigurationTest extends TestCase
             $Server->getAddress()
         );
     }
+
+    public function testBasePathAlwaysHasLeadingAndTrailingSlash(): void
+    {
+        $Server = new Server([
+            'basePath' => 'custom-api',
+            'baseHost' => 'https://api.example.com/'
+        ]);
+
+        self::assertSame('/custom-api/', $Server->getBasePath());
+        self::assertSame(
+            'https://api.example.com/custom-api/',
+            $Server->getBasePathWithHost()
+        );
+    }
 }
