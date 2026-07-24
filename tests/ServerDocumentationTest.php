@@ -4,7 +4,6 @@ namespace QUI\REST\Tests;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
-use QUI;
 use QUI\REST\Response;
 use QUI\REST\Tests\Fixtures\DocumentationTestProvider;
 use QUI\REST\Tests\Fixtures\RoutingTestServer;
@@ -17,12 +16,6 @@ class ServerDocumentationTest extends TestCase
      */
     private array $temporaryFiles = [];
 
-    private ?string $generatedSpecificationFile = null;
-
-    private ?string $originalSpecification = null;
-
-    private bool $specificationExisted = false;
-
     protected function tearDown(): void
     {
         foreach ($this->temporaryFiles as $file) {
@@ -32,19 +25,6 @@ class ServerDocumentationTest extends TestCase
         }
 
         $this->temporaryFiles = [];
-
-        if ($this->generatedSpecificationFile === null) {
-            return;
-        }
-
-        if ($this->specificationExisted) {
-            file_put_contents(
-                $this->generatedSpecificationFile,
-                $this->originalSpecification
-            );
-        } elseif (file_exists($this->generatedSpecificationFile)) {
-            unlink($this->generatedSpecificationFile);
-        }
     }
 
     public function testDocumentationListReturnsProviderLinksAsJson(): void
@@ -217,7 +197,7 @@ class ServerDocumentationTest extends TestCase
 
         self::assertSame('application/json', $Response->getHeaderLine('Content-Type'));
         self::assertSame(
-            [['url' => 'https://example.test/api/']],
+            [['url' => '/api/']],
             $specification['servers']
         );
         self::assertContains(
@@ -255,17 +235,6 @@ class ServerDocumentationTest extends TestCase
                 $definitionFile
             )
         ]);
-        $Package = QUI::getPackage('quiqqer/rest');
-        $this->generatedSpecificationFile = $Package->getVarDir()
-            . 'bin/specification.json';
-        $this->specificationExisted = file_exists(
-            $this->generatedSpecificationFile
-        );
-
-        if ($this->specificationExisted) {
-            $contents = file_get_contents($this->generatedSpecificationFile);
-            $this->originalSpecification = $contents === false ? '' : $contents;
-        }
 
         $Response = $Server->onGetDocsApi(
             new ServerRequest('GET', '/api/docs/Documented/html'),
@@ -281,9 +250,13 @@ class ServerDocumentationTest extends TestCase
             '<title>Documented API</title>',
             (string)$Response->getBody()
         );
-        self::assertFileExists($this->generatedSpecificationFile);
-        self::assertJson(
-            (string)file_get_contents($this->generatedSpecificationFile)
+        self::assertStringContainsString(
+            'url: "/api/docs/Documented/json"',
+            (string)$Response->getBody()
+        );
+        self::assertStringNotContainsString(
+            'https://example.test',
+            (string)$Response->getBody()
         );
     }
 
