@@ -48,6 +48,7 @@
       // Begin Swagger UI call region
       const ui = SwaggerUIBundle({
         url: "{$openApiSpecificationFile}",
+        oauth2RedirectUrl: window.location.origin + "{$URL_OPT_DIR}quiqqer/rest/bin/template/oauth2-redirect.html",
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
