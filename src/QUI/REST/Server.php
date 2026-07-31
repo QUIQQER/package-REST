@@ -9,18 +9,26 @@ use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Log\LoggerInterface;
 use QUI;
 use Slim;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
+use function array_is_list;
 use function file_exists;
 use function file_get_contents;
+use function in_array;
+use function is_array;
 use function is_readable;
 use function json_decode;
 use function json_encode;
+use function pathinfo;
 use function rawurlencode;
 use function rtrim;
+use function strtolower;
 use function trim;
 
 use const ARRAY_FILTER_USE_KEY;
+use const PATHINFO_EXTENSION;
 
 /**
  * The Rest Server
@@ -334,6 +342,7 @@ class Server
      * @return ResponseInterface
      * @throws QUI\Exception
      * @throws \JsonException
+     * @throws ParseException
      */
     public function onGetDocsApi(
         RequestInterface $Request,
@@ -369,21 +378,7 @@ class Server
             return $Response->write("No OpenApi docs available for API \"" . $apiName . "\".");
         }
 
-        $specificationJson = file_get_contents($openApiDefinitionFile);
-
-        if ($specificationJson === false) {
-            throw new QUI\Exception(
-                'Could not read OpenAPI definition file.',
-                500
-            );
-        }
-
-        $specificationArray = json_decode(
-            $specificationJson,
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        );
+        $specificationArray = $this->loadOpenApiDefinition($openApiDefinitionFile);
 
         // Add servers
         $specificationArray['servers'] = [
@@ -463,6 +458,47 @@ class Server
         return $Response
             ->write($html)
             ->withHeader('Content-Type', 'text/html');
+    }
+
+    /**
+     * @return array<string, mixed>
+     * @throws \JsonException
+     * @throws QUI\Exception
+     * @throws ParseException
+     */
+    private function loadOpenApiDefinition(string $definitionFile): array
+    {
+        $contents = file_get_contents($definitionFile);
+
+        if ($contents === false) {
+            throw new QUI\Exception(
+                'Could not read OpenAPI definition file.',
+                500
+            );
+        }
+
+        $extension = strtolower(pathinfo($definitionFile, PATHINFO_EXTENSION));
+
+        if (in_array($extension, ['yaml', 'yml'], true)) {
+            $specification = Yaml::parse($contents);
+        } else {
+            $specification = json_decode(
+                $contents,
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+        }
+
+        if (!is_array($specification) || array_is_list($specification)) {
+            throw new QUI\Exception(
+                'OpenAPI definition must contain an object.',
+                500
+            );
+        }
+
+        /** @var array<string, mixed> $specification */
+        return $specification;
     }
 
     /**

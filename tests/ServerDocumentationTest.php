@@ -254,6 +254,10 @@ class ServerDocumentationTest extends TestCase
             'url: "/api/docs/Documented/json"',
             (string)$Response->getBody()
         );
+        self::assertStringContainsString(
+            'oauth2RedirectUrl: window.location.origin + "',
+            (string)$Response->getBody()
+        );
         self::assertStringNotContainsString(
             'https://example.test',
             (string)$Response->getBody()
@@ -263,6 +267,78 @@ class ServerDocumentationTest extends TestCase
     public function testInvalidOpenApiJsonReturnsInternalServerError(): void
     {
         $definitionFile = $this->createRawDefinitionFile('{invalid JSON');
+        $Server = new RoutingTestServer([
+            new DocumentationTestProvider(
+                'Invalid',
+                'Invalid API',
+                $definitionFile
+            )
+        ]);
+        $Server->registerBasePaths();
+
+        $Response = $Server->getSlim()->handle(
+            new ServerRequest('GET', '/api/docs/Invalid/json')
+        );
+
+        self::assertSame(500, $Response->getStatusCode());
+        self::assertSame('', (string)$Response->getBody());
+    }
+
+    public function testYamlOpenApiDefinitionsAreExtendedAndReturnedAsJson(): void
+    {
+        foreach (['yaml', 'yml'] as $extension) {
+            $definitionFile = $this->createRawDefinitionFile(
+                <<<'YAML'
+openapi: 3.0.3
+info:
+  title: YAML API
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      responses: {}
+YAML,
+                $extension
+            );
+            $Server = new RoutingTestServer([
+                new DocumentationTestProvider(
+                    'Yaml',
+                    'YAML API',
+                    $definitionFile
+                )
+            ]);
+
+            $Response = $Server->onGetDocsApi(
+                new ServerRequest('GET', '/api/docs/Yaml/json'),
+                new Response(),
+                [
+                    'api_name' => 'Yaml',
+                    'format' => 'json'
+                ]
+            );
+            $specification = json_decode(
+                (string)$Response->getBody(),
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+
+            self::assertSame('application/json', $Response->getHeaderLine('Content-Type'));
+            self::assertSame('YAML API', $specification['info']['title']);
+            self::assertSame([['url' => '/api/']], $specification['servers']);
+            self::assertSame(
+                'Accept-Language',
+                $specification['paths']['/items']['get']['parameters'][0]['name']
+            );
+        }
+    }
+
+    public function testInvalidOpenApiYamlReturnsInternalServerError(): void
+    {
+        $definitionFile = $this->createRawDefinitionFile(
+            'openapi: [unterminated',
+            'yaml'
+        );
         $Server = new RoutingTestServer([
             new DocumentationTestProvider(
                 'Invalid',
@@ -290,12 +366,26 @@ class ServerDocumentationTest extends TestCase
         );
     }
 
-    private function createRawDefinitionFile(string $contents): string
-    {
+    private function createRawDefinitionFile(
+        string $contents,
+        string $extension = ''
+    ): string {
+        $extension = ltrim($extension, '.');
         $file = tempnam(sys_get_temp_dir(), 'quiqqer-rest-openapi-');
 
         if ($file === false) {
             throw new RuntimeException('Could not create temporary OpenAPI definition file.');
+        }
+
+        if ($extension !== '') {
+            $definitionFile = $file . '.' . $extension;
+
+            if (!rename($file, $definitionFile)) {
+                unlink($file);
+                throw new RuntimeException('Could not add an extension to the OpenAPI definition file.');
+            }
+
+            $file = $definitionFile;
         }
 
         file_put_contents($file, $contents);
