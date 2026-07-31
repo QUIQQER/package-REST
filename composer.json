@@ -25,7 +25,8 @@
         "psr/log": "^1|^2|^3",
         "quiqqer/core": "^2",
         "quiqqer/rest-authentication-implementation": "^1",
-        "slim/slim": "^4"
+        "slim/slim": "^4",
+        "symfony/yaml": "^7.4 || ^8.0"
     },
     "autoload": {
         "psr-4": {
