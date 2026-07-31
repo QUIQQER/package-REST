@@ -254,6 +254,10 @@ class ServerDocumentationTest extends TestCase
             'url: "/api/docs/Documented/json"',
             (string)$Response->getBody()
         );
+        self::assertStringContainsString(
+            'oauth2RedirectUrl: window.location.origin + "',
+            (string)$Response->getBody()
+        );
         self::assertStringNotContainsString(
             'https://example.test',
             (string)$Response->getBody()
