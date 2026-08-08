@@ -50,9 +50,7 @@ class EventHandler
             return;
         }
 
-        $uri = $uri . '/';
-
-        if (!empty($basePath) && mb_strpos($uri, $basePath) === false) {
+        if (!self::isRestRequest($uri, $basePath)) {
             return;
         }
 
@@ -73,5 +71,24 @@ class EventHandler
         QUI::getEvents()->fireEvent('restInit', [$Server, $Request]);
         $Server->run();
         exit;
+    }
+
+    public static function isRestRequest(string $requestUri, string $basePath): bool
+    {
+        if (trim($basePath, '/') === '') {
+            return true;
+        }
+
+        $requestPath = parse_url($requestUri, PHP_URL_PATH);
+
+        if (!is_string($requestPath)) {
+            return false;
+        }
+
+        $requestPath = '/' . trim($requestPath, '/');
+        $basePath = '/' . trim($basePath, '/');
+
+        return $requestPath === $basePath
+            || str_starts_with($requestPath, $basePath . '/');
     }
 }
