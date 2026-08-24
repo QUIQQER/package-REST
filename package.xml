@@ -8,6 +8,15 @@
             <locale group="quiqqer/rest" var="package.description"/>
         </description>
 
+        <capabilities schemaVersion="1">
+            <capability id="integration.rest-api-server">
+                <title>REST API server</title>
+                <description>
+                    Hosts package-provided REST endpoints on a configurable Slim 4 server with PSR-7 HTTP handling, OpenAPI JSON or YAML documentation exposed as JSON and Swagger UI, language negotiation, and a required pluggable authentication provider.
+                </description>
+            </capability>
+        </capabilities>
+
         <image src="URL_OPT_DIR/quiqqer/rest/bin/images/Logo.jpg"/>
 
         <support>
