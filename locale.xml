@@ -4,23 +4,48 @@
         <locale name="package.title">
             <de><![CDATA[QUIQQER - REST API]]></de>
             <en><![CDATA[QUIQQER - REST API]]></en>
+            <es><![CDATA[QUIQQER - API REST]]></es>
+            <pt><![CDATA[QUIQQER - API REST]]></pt>
+            <fr><![CDATA[QUIQQER - API REST]]></fr>
+            <it><![CDATA[QUIQQER - API REST]]></it>
+            <pl><![CDATA[QUIQQER - REST API]]></pl>
         </locale>
         <locale name="package.description">
             <de><![CDATA[Erweitert QUIQQER um einen REST API Server. QUIQQER REST ermöglicht es jedem Paket eine REST API zur Verfügung zu stellen.]]></de>
             <en><![CDATA[Extend QUIQQER with a REST API server. QUIQQER REST allows each package to provide a REST API.]]></en>
+            <es><![CDATA[Añade un servidor de API REST a QUIQQER. QUIQQER REST permite que cada paquete ofrezca su propia API REST.]]></es>
+            <pt><![CDATA[Adiciona um servidor de API REST ao QUIQQER. O QUIQQER REST permite que cada pacote disponibilize a sua própria API REST.]]></pt>
+            <fr><![CDATA[Ajoute un serveur d’API REST à QUIQQER. QUIQQER REST permet à chaque paquet de proposer sa propre API REST.]]></fr>
+            <it><![CDATA[Aggiunge un server API REST a QUIQQER. QUIQQER REST consente a ogni pacchetto di offrire la propria API REST.]]></it>
+            <pl><![CDATA[Rozszerza QUIQQER o serwer REST API. QUIQQER REST umożliwia każdemu pakietowi udostępnianie własnego REST API.]]></pl>
         </locale>
 
         <locale name="settings.cron.title">
             <de><![CDATA[REST Host Einstellungen]]></de>
             <en><![CDATA[REST Host Settings]]></en>
+            <es><![CDATA[Configuración del host REST]]></es>
+            <pt><![CDATA[Definições do anfitrião REST]]></pt>
+            <fr><![CDATA[Paramètres de l’hôte REST]]></fr>
+            <it><![CDATA[Impostazioni dell’host REST]]></it>
+            <pl><![CDATA[Ustawienia hosta REST]]></pl>
         </locale>
         <locale name="settings.baseHost">
             <de><![CDATA[Basis-Host]]></de>
             <en><![CDATA[Base host]]></en>
+            <es><![CDATA[Host base]]></es>
+            <pt><![CDATA[Anfitrião base]]></pt>
+            <fr><![CDATA[Hôte de base]]></fr>
+            <it><![CDATA[Host di base]]></it>
+            <pl><![CDATA[Host bazowy]]></pl>
         </locale>
         <locale name="settings.basePath">
             <de><![CDATA[Basispfad]]></de>
             <en><![CDATA[Base path]]></en>
+            <es><![CDATA[Ruta base]]></es>
+            <pt><![CDATA[Caminho base]]></pt>
+            <fr><![CDATA[Chemin de base]]></fr>
+            <it><![CDATA[Percorso di base]]></it>
+            <pl><![CDATA[Ścieżka bazowa]]></pl>
         </locale>
     </groups>
 
@@ -29,14 +54,29 @@
         <locale name="DocsList.title">
             <de><![CDATA[QUIQQER REST APIs - Liste]]></de>
             <en><![CDATA[QUIQQER REST APIs - List]]></en>
+            <es><![CDATA[Lista de API REST de QUIQQER]]></es>
+            <pt><![CDATA[Lista de API REST do QUIQQER]]></pt>
+            <fr><![CDATA[Liste des API REST de QUIQQER]]></fr>
+            <it><![CDATA[Elenco delle API REST di QUIQQER]]></it>
+            <pl><![CDATA[Lista REST API QUIQQER]]></pl>
         </locale>
         <locale name="DocsList.tbl.header.title">
             <de><![CDATA[API]]></de>
             <en><![CDATA[API]]></en>
+            <es><![CDATA[API]]></es>
+            <pt><![CDATA[API]]></pt>
+            <fr><![CDATA[API]]></fr>
+            <it><![CDATA[API]]></it>
+            <pl><![CDATA[API]]></pl>
         </locale>
         <locale name="DocsList.tbl.header.docsLink">
             <de><![CDATA[Dokumentation]]></de>
             <en><![CDATA[Documentation]]></en>
+            <es><![CDATA[Documentación]]></es>
+            <pt><![CDATA[Documentação]]></pt>
+            <fr><![CDATA[Documentation]]></fr>
+            <it><![CDATA[Documentazione]]></it>
+            <pl><![CDATA[Dokumentacja]]></pl>
         </locale>
 
     </groups>
